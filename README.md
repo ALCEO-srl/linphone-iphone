@@ -91,8 +91,11 @@ If you don't have CocoaPods already, you can download and install it using :
 
 - Follow the instructions in the linphone-sdk/README file to build the SDK.
 
-## DMS Follow these steps:
+## (DMS) Follow these steps:
+	1. cmake --preset=ios-sdk -G Ninja -B build-ios -DENABLE_LIME_X3DH=OFF -DENABLE_LIME=OFF -DENABLE_ADVANCED_IM=OFF -DENABLE_VCARD=OFF -DENABLE_LDAP=OFF -DENABLE_ZRTP=OFF -DENABLE_MKV=OFF -DENABLE_ISAC=OFF -DENABLE_ILBC=OFF -DENABLE_SRTP=OFF -DENABLE_ZRTP=OFF
+ 	2. cmake --build build-ios
 
+        Pay attention to: 
 	1. The SDK won't compile if ZRTP is enabled (due to some missing dependency). We don't need SRTP, so we can disable the support.
 	2. After disabling the ZRTP library, the SDK still won't compile because of some incorrect declarations in mediastreamer2/src/crypto/ms_srtp.cpp. You need to adjust them to match the contents of the ms_srtp.h header file.
 
