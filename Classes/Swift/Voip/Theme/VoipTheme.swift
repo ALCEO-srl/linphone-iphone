@@ -44,10 +44,10 @@ import UIKit
 	
 	// General colors (used by VoIP)
 	
-	@objc static let primary_color = UIColor(hex:"#ff5e00")
-	@objc static let primary_light_color = UIColor(hex:"#ffdfcc")
+	@objc static let primary_color = UIColor(hex:"#8a8af8")
+	@objc static let primary_light_color = UIColor(hex:"#bebaff")
 	@objc static let gray_light_color = UIColor(hex:"#e1e1e1")
-	static let primary_dark_color = UIColor(hex:"#e65000")
+	static let primary_dark_color = UIColor(hex:"#565dc4")
 	static let green_color = UIColor(hex:"#96c11f")
 	static let dark_green_color = UIColor(hex:"#7d9f21")
 	@objc static let toolbar_color = UIColor(hex:"#e1e1e1")

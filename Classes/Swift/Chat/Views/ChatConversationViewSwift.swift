@@ -99,34 +99,18 @@ class ChatConversationViewSwift: BackActionsNavigationView, PHPickerViewControll
 			"delete_default.png",
 			"chat_group_informations.png"
 		]
-		menu.cellNib = UINib(nibName: "DropDownCell", bundle: nil)
+        
+        
+		
 		menu.customCellConfiguration = { index, title, cell in
-			guard let cell = cell as? MyCell else {
-				return
-			}
-			if(index < images.count){
-				switch menu.dataSource[index] {
-				case VoipTexts.dropdown_menu_chat_conversation_add_to_contact:
-					cell.myImageView.image = UIImage(named: images[0])
-				case VoipTexts.dropdown_menu_chat_conversation_go_to_contact:
-					cell.myImageView.image = UIImage(named: images[1])
-				case VoipTexts.conference_schedule_start:
-					cell.myImageView.image = UIImage(named: images[2])
-				case VoipTexts.dropdown_menu_chat_conversation_conversation_device:
-					cell.myImageView.image = UIImage(named: images[3])
-				case VoipTexts.dropdown_menu_chat_conversation_ephemeral_messages:
-					cell.myImageView.image = UIImage(named: images[4])
-				case VoipTexts.dropdown_menu_chat_conversation_mute_notifications:
-					cell.myImageView.image = UIImage(named: images[5])
-				case VoipTexts.dropdown_menu_chat_conversation_unmute_notifications:
-					cell.myImageView.image = UIImage(named: images[6])
-				case VoipTexts.dropdown_menu_chat_conversation_delete_messages:
-					cell.myImageView.image = UIImage(named: images[7])
-				default:
-					cell.myImageView.image = UIImage(named: images[8])
+            
+            if(index < images.count){
+                cell.imageView?.image = UIImage(named: images[index])}
+            else {
+				cell.imageView?.image = UIImage(named: images[8])
 				}
 			}
-		}
+		
 		return menu
 	}()
 	

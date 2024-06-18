@@ -48,7 +48,7 @@ typedef enum _ViewElement {
 	ViewElement_SMSCode = 108,
 	ViewElement_PhoneCC = 109,
 	ViewElement_TextFieldCount = ViewElement_PhoneCC - 100 + 1,
-	ViewElement_Transport = 110,
+
 	ViewElement_Username_Label = 120,
 	ViewElement_NextButton = 130,
 
@@ -1677,18 +1677,18 @@ UIColor *previousColor = (UIColor*)[sender backgroundColor]; \
 		}
 		
 		linphone_account_params_set_identity_address(accountParams, addr);
-		// set transport
-		UISegmentedControl *transports = (UISegmentedControl *)[self findView:ViewElement_Transport
-																	   inView:self.contentView
-																	   ofType:UISegmentedControl.class];
-		if (transports) {
-			NSString *type = [transports titleForSegmentAtIndex:[transports selectedSegmentIndex]];
-			LinphoneAddress *transportAddr = linphone_address_new([NSString stringWithFormat:@"sip:%s;transport=%s", domain.UTF8String, type.lowercaseString.UTF8String].UTF8String);
-			linphone_account_params_set_routes_addresses(accountParams, bctbx_list_new(transportAddr));
-			linphone_account_params_set_server_addr(accountParams, [NSString stringWithFormat:@"%s;transport=%s", domain.UTF8String, type.lowercaseString.UTF8String].UTF8String);
+		
+        //dms ****** set transport
 			
-			linphone_address_unref(transportAddr);
-		}
+        //LinphoneAddress *transportAddr = linphone_address_new([NSString stringWithFormat:@"sip:%s;transport=tls", domain.UTF8String].UTF8String);
+        //linphone_account_params_set_routes_addresses(accountParams, bctbx_list_new(transportAddr));
+        linphone_account_params_set_server_addr(accountParams, [LinphoneManager.instance lpConfigStringForKey:@"outboundproxy" inSection:@"app" withDefault:@""].UTF8String);
+			
+        //linphone_address_unref(transportAddr);
+        linphone_account_params_enable_outbound_proxy(accountParams, TRUE);
+        linphone_account_params_set_lime_server_url(accountParams, "");
+		//dms ******
+        
 		linphone_account_params_set_publish_enabled(accountParams, FALSE);
 		linphone_account_params_set_register_enabled(accountParams, TRUE);
 		
@@ -1697,10 +1697,63 @@ UIColor *previousColor = (UIColor*)[sender backgroundColor]; \
 								   NULL,								// user id
 								   pwd.UTF8String,						// passwd
 								   NULL,								// ha1
-								   linphone_address_get_domain(addr),   // realm - assumed to be domain
-								   linphone_address_get_domain(addr)	// domain
+                                   [NSString stringWithFormat:@"BCS %s realm", domain.UTF8String].UTF8String, //realm //dms
+                                   domain.UTF8String	                // domain
 								   );
 		linphone_core_add_auth_info(LC, info);
+        
+        
+        //dms ****
+        
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"sturn" ofType:@"rc"];
+        NSError *error;
+        NSString *fileContents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
+
+        if (error) {
+            NSLog(@"Errore nella lettura del file: %@", error.localizedDescription);
+        } else {
+            NSLog(@"Contenuto del file: %@", fileContents);
+            // Ora puoi elaborare il contenuto del file per estrarre le costanti
+        }
+        NSArray *lines = [fileContents componentsSeparatedByString:@"\n"];
+        NSMutableDictionary *configDict = [NSMutableDictionary dictionary];
+        
+        for (NSString *line in lines) {
+            NSArray *components = [line componentsSeparatedByString:@"="];
+            if (components.count == 2) {
+                NSString *key = components[0];
+                NSString *value = components[1];
+                configDict[key] = value;
+            }
+        }
+
+        NSString *turnrealm = configDict[@"turnrealm"];
+        NSString *turnusername = configDict[@"turnusername"];
+        NSString *turnuserpassword = configDict[@"turnuserpassword"];
+        NSString *turnserver = configDict[@"turnserver"];
+       
+        
+        info = linphone_auth_info_new(turnusername.UTF8String, // username
+                                      turnusername.UTF8String,                                // user id
+                                      turnuserpassword.UTF8String,                        // passwd
+                                    NULL,                                // ha1
+                                    linphone_address_get_domain(addr),   // realm - assumed to be domain
+                                    linphone_address_get_domain(addr)    // domain
+                                    );
+         linphone_core_add_auth_info(LC, info);
+         
+                         
+         LinphoneNatPolicy *policy = linphone_account_params_get_nat_policy(accountParams) ?: linphone_core_create_nat_policy(LC);
+         linphone_nat_policy_enable_stun(policy, TRUE); // We always use STUN with ICE
+         linphone_nat_policy_enable_ice(policy, TRUE);
+         linphone_nat_policy_enable_turn(policy, TRUE);
+         linphone_nat_policy_set_stun_server(policy, turnserver.UTF8String);
+         linphone_nat_policy_set_stun_server_username(policy, turnusername.UTF8String);
+         linphone_account_params_set_nat_policy(accountParams, policy);
+         //dms ****
+        
+        
+        
 		linphone_address_unref(addr);
 		linphone_address_unref(tmpAddr);
 		

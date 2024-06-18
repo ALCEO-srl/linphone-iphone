@@ -473,7 +473,7 @@ static UICompositeViewDescription *compositeDescription = nil;
 }
 
 -(NSData *) nsDataRead {
-	NSString* groupName = [NSString stringWithFormat:@"group.%@.linphoneExtension",[[NSBundle mainBundle] bundleIdentifier]];
+	NSString* groupName = [NSString stringWithFormat:@"group.%@.extension",[[NSBundle mainBundle] bundleIdentifier]];
 	NSString *path  =[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupName] path];
 	NSString *fullCacheFilePathPath = [NSString stringWithFormat:@"%@/%@",path,@"nsData"];
 	return[NSData dataWithContentsOfFile:fullCacheFilePathPath];
@@ -481,7 +481,7 @@ static UICompositeViewDescription *compositeDescription = nil;
 
 
 - (void)shareFile {
-	NSString* groupName = [NSString stringWithFormat:@"group.%@.linphoneExtension",[[NSBundle mainBundle] bundleIdentifier]];
+	NSString* groupName = [NSString stringWithFormat:@"group.%@.extension",[[NSBundle mainBundle] bundleIdentifier]];
 
 
     NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:groupName];

@@ -4,7 +4,11 @@
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.org.linphone.phone.linphoneExtension</string>
+		<string>group.com.alceo.bcsphone</string>
+		<string>group.com.alceo.bcsphone.extension</string>
+		<string>group.com.alceo.bcsphone.notification</string>
+		<string>group.com.alceo.bcsphone.notificationContent</string>
+		<string>group.com.alceo.bcsphone.widget</string>
 	</array>
 </dict>
 </plist>

@@ -84,7 +84,7 @@ final class SheetViewController: UIViewController {
         // view
         view.backgroundColor = VoipTheme.voipBackgroundBWColor.get()
         
-        navigationController?.navigationBar.barTintColor = .orange
+        navigationController?.navigationBar.barTintColor = .init("#8a8af8")
         navigationController?.navigationBar.isTranslucent = false
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
@@ -118,8 +118,9 @@ final class SheetViewController: UIViewController {
 			addItem(item: SimpleItemViewController(chatMessageReactionsListInit: chatMessage.reactions.filter({$0.body == "😢"})), title: "😢 \(reaction5Count)")
 		}
 		
-		setHeaderActiveColor(color: .orange) // default blue
-		setStyle(style: .fixed) // default fixed
+		//setHeaderActiveColor(color: .orange) // default blue
+        setHeaderActiveColor(color: .init("#8a8af8"))
+        setStyle(style: .fixed) // default fixed
 		build()
     }
     

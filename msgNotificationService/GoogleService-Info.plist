@@ -2,35 +2,29 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CLIENT_ID</key>
-	<string></string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string></string>
 	<key>API_KEY</key>
-	<string></string>
+	<string>AIzaSyBZAN-VurrXlw36qOEAoe6u2c17fFELaNk</string>
 	<key>GCM_SENDER_ID</key>
-	<string></string>
+	<string>823532118325</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>org.linphone.phone.msgNotificationService</string>
+	<string>com.alceo.bcsphone</string>
 	<key>PROJECT_ID</key>
-	<string>linphone-iphone</string>
+	<string>bcsphone-6557b</string>
 	<key>STORAGE_BUCKET</key>
-	<string>linphone-iphone.appspot.com</string>
+	<string>bcsphone-6557b.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
-	<false/>
+	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false/>
+	<false></false>
 	<key>IS_APPINVITE_ENABLED</key>
-	<true/>
+	<true></true>
 	<key>IS_GCM_ENABLED</key>
-	<true/>
+	<true></true>
 	<key>IS_SIGNIN_ENABLED</key>
-	<true/>
+	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string></string>
-	<key>DATABASE_URL</key>
-	<string></string>
+	<string>1:823532118325:ios:2ab40f52a2fb4148c2ac7c</string>
 </dict>
 </plist>

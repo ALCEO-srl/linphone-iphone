@@ -187,7 +187,7 @@ class ChatConversationViewModel {
 	}
 	
 	func nsDataRead() -> Data? {
-		let groupName = "group.\(Bundle.main.bundleIdentifier ?? "").linphoneExtension"
+		let groupName = "group.\(Bundle.main.bundleIdentifier ?? "").bcsphoneExtension"
 		let path = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupName)?.path
 		let fullCacheFilePathPath = "\(path ?? "")/\("nsData")"
 		return NSData(contentsOfFile: fullCacheFilePathPath) as Data?
@@ -256,7 +256,7 @@ class ChatConversationViewModel {
 	}
 	
 	func shareFile() {
-		let groupName = "group.\(Bundle.main.bundleIdentifier ?? "").linphoneExtension"
+		let groupName = "group.\(Bundle.main.bundleIdentifier ?? "").bcsphoneExtension"
 		let defaults = UserDefaults(suiteName: groupName)
 		let dict = defaults?.value(forKey: "photoData") as? [AnyHashable : Any]
 		if let dict_notnil = dict {

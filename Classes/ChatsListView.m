@@ -66,7 +66,7 @@
 - (void)mediaSharing{
 	BOOL forwardMode;
 	
-	NSString* groupName = [NSString stringWithFormat:@"group.%@.linphoneExtension",[[NSBundle mainBundle] bundleIdentifier]];
+	NSString* groupName = [NSString stringWithFormat:@"group.%@.extension",[[NSBundle mainBundle] bundleIdentifier]];
 	NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:groupName];
 	NSDictionary *dict = [defaults valueForKey:@"photoData"];
 	NSDictionary *dictFile = [defaults valueForKey:@"icloudData"];
@@ -207,7 +207,7 @@ static UICompositeViewDescription *compositeDescription = nil;
 - (IBAction)onCancelForwardClicked:(id)sender {
 	VIEW(ChatConversationViewSwift).sharingMedia = false;
 	VIEW(ChatConversationViewSwift).pendingForwardMessage = nil;
-	NSString* groupName = [NSString stringWithFormat:@"group.%@.linphoneExtension",[[NSBundle mainBundle] bundleIdentifier]];
+	NSString* groupName = [NSString stringWithFormat:@"group.%@.extension",[[NSBundle mainBundle] bundleIdentifier]];
 	NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:groupName];
 	[defaults removeObjectForKey:@"photoData"];
 	[defaults removeObjectForKey:@"icloudData"];

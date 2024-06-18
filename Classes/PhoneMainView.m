@@ -454,7 +454,7 @@ static RootViewManager *rootViewManagerInstance = nil;
 		LinphoneManager *lm = LinphoneManager.instance;
 		LOGI(@"%s", linphone_global_state_to_string(linphone_core_get_global_state(LC)));
 		
-		NSString* groupName = [NSString stringWithFormat:@"group.%@.linphoneExtension",[[NSBundle mainBundle] bundleIdentifier]];
+		NSString* groupName = [NSString stringWithFormat:@"group.%@.extension",[[NSBundle mainBundle] bundleIdentifier]];
 
 
 		NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:groupName];

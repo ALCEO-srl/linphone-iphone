@@ -20,7 +20,7 @@ def crashlytics
 	end
 end
 
-target 'linphone' do
+target 'bcsphone' do
   # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
   use_frameworks!
 
@@ -55,15 +55,6 @@ target 'msgNotificationContent' do
 
 end
 
-target 'CallUITests' do
-  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
-  use_frameworks!
-
-  # Pods for CallUITests
-  all_pods
-
-end
-
 #target 'LocalPushProvider' do
   # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
   #use_frameworks!
@@ -87,7 +78,7 @@ post_install do |installer|
 	app_project = Xcodeproj::Project.open(Dir.glob("*.xcodeproj")[0])
 	app_project.native_targets.each do |target|
 		target.build_configurations.each do |config|
-			if target.name == "linphone" || target.name == 'msgNotificationService' || target.name == 'msgNotificationContent'
+			if target.name == "bcsphone" || target.name == 'msgNotificationService' || target.name == 'msgNotificationContent'
 				if ENV['USE_CRASHLYTICS'].nil?
 					if config.name == "Debug" then
 						config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = '$(inherited) DEBUG=1'
@@ -106,7 +97,7 @@ post_install do |installer|
 				end
 			end
 
-			if target.name == "linphone"
+			if target.name == "bcsphone"
 				config.build_settings['OTHER_CFLAGS'] = '-DBCTBX_LOG_DOMAIN=\"ios\"',
 																							'-DCHECK_VERSION_UPDATE=FALSE',
 																							'-DENABLE_QRCODE=TRUE',

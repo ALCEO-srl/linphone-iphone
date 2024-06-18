@@ -21,11 +21,13 @@
 #import "UIChatBubblePhotoCell.h"
 #import "LinphoneManager.h"
 #import "PhoneMainView.h"
+#import "UIColor+Hex.h"
 
 #import <AssetsLibrary/ALAsset.h>
 #import <AssetsLibrary/ALAssetRepresentation.h>
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVKit/AVKit.h>
+
 
 #define voicePlayer VIEW(ChatConversationView).sharedVoicePlayer
 #define chatView VIEW(ChatConversationView)
@@ -203,7 +205,8 @@
 		}
 		_vrTimerLabel.text =  [self formattedDuration:linphone_content_get_file_duration(voiceContent)/1000];
 		_vrWaveMaskPlayback.frame = CGRectZero;
-		_vrWaveMaskPlayback.backgroundColor = linphone_chat_message_is_outgoing(self.message) ? UIColor.orangeColor : UIColor.grayColor;
+        //dms
+		_vrWaveMaskPlayback.backgroundColor = linphone_chat_message_is_outgoing(self.message) ? [UIColor colorWithHexString:@"#bebaff"] : UIColor.grayColor;
 	}
 
 	const bctbx_list_t *contents = linphone_chat_message_get_contents(self.message);

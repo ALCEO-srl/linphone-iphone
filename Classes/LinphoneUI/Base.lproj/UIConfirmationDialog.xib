@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="22155" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22131"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -18,7 +18,6 @@
                 <outlet property="forwardImage" destination="1Wh-Yi-cUe" id="YQq-bt-pk1"/>
                 <outlet property="groupCallImage" destination="SVn-4k-9yc" id="sAP-8V-ttn"/>
                 <outlet property="securityImage" destination="bbo-g3-bGy" id="qZa-li-yrl"/>
-                <outlet property="subscribeLabel" destination="Xbl-Qs-GaE" id="Qnf-pA-nL0"/>
                 <outlet property="titleLabel" destination="jLz-g1-cTe" id="qaj-OB-2r1"/>
                 <outlet property="view" destination="2Vb-Xy-rci" id="nNw-EJ-AY3"/>
             </connections>
@@ -106,16 +105,6 @@
                             <rect key="frame" x="100" y="50" width="136" height="54"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         </imageView>
-                        <label hidden="YES" opaque="NO" tag="13" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="https://subscribe.linphone.org" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Xbl-Qs-GaE" userLabel="subscribeLabel">
-                            <rect key="frame" x="-42" y="291" width="414" height="29"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                            <color key="textColor" red="0.98766469960000003" green="0.27512490750000002" blue="0.029739789660000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            <nil key="highlightedColor"/>
-                            <connections>
-                                <outletCollection property="gestureRecognizers" destination="tfG-O1-yfD" appends="YES" id="Jcg-KH-U5B"/>
-                            </connections>
-                        </label>
                     </subviews>
                 </view>
             </subviews>
