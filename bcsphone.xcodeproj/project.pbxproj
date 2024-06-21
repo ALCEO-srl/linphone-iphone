@@ -1797,6 +1797,16 @@
 		8B5842D52C189B4D009FF40B /* linphoneDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = linphoneDebug.entitlements; sourceTree = "<group>"; };
 		8B5842D62C18A2B3009FF40B /* linphoneRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = linphoneRelease.entitlements; sourceTree = "<group>"; };
 		8B5842D72C18A2BB009FF40B /* linphoneDistribution.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = linphoneDistribution.entitlements; sourceTree = "<group>"; };
+		8BBC6A842C2304B000960791 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/AssistantViewScreens.strings; sourceTree = "<group>"; };
+		8BBC6A852C230F0500960791 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/AssistantView.strings; sourceTree = "<group>"; };
+		8BBC6A862C231BCD00960791 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/SettingsView.strings; sourceTree = "<group>"; };
+		8BBC6A882C231BF200960791 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/RecordingsListView.strings; sourceTree = "<group>"; };
+		8BBC6A8A2C231C0E00960791 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/PhoneMainView.strings; sourceTree = "<group>"; };
+		8BBC6A8B2C231C2900960791 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/SideMenuView.strings; sourceTree = "<group>"; };
+		8BBC6A8C2C23270000960791 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/UIConfirmationDialog.strings; sourceTree = "<group>"; };
+		8BC578F02C247471003FDD32 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/ChatsListView.strings; sourceTree = "<group>"; };
+		8BC578F12C247B03003FDD32 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/DialerView.strings; sourceTree = "<group>"; };
+		8BC578F22C247B72003FDD32 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/AboutView.strings; sourceTree = "<group>"; };
 		8BD10EB32C2190B900027C5F /* UIColor+Hex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIColor+Hex.h"; sourceTree = "<group>"; };
 		8BD10EB42C21910600027C5F /* UIColor+Hex.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Hex.m"; sourceTree = "<group>"; };
 		8BD10EB62C2196B000027C5F /* sturn.rc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sturn.rc; sourceTree = "<group>"; };
@@ -5444,6 +5454,7 @@
 				617B4A61260A2B7800A87337 /* Base */,
 				617B4A64260A2B8500A87337 /* fr */,
 				617B4A75260A3F5500A87337 /* en */,
+				8BBC6A882C231BF200960791 /* it */,
 			);
 			name = RecordingsListView.xib;
 			sourceTree = "<group>";
@@ -5483,6 +5494,7 @@
 				61E8E46323C5E8EC00434E71 /* ar */,
 				61E8E46523C5E8F000434E71 /* fr */,
 				6187B1B524B3271500D580FB /* hu */,
+				8BC578F22C247B72003FDD32 /* it */,
 			);
 			name = AboutView.xib;
 			sourceTree = "<group>";
@@ -5494,6 +5506,7 @@
 				F0AF070E1A24BA770086C9C1 /* ar */,
 				8CBD7BD520B6B88C00E5DCC0 /* fr */,
 				6187B1DB24B3272400D580FB /* hu */,
+				8BBC6A862C231BCD00960791 /* it */,
 			);
 			name = SettingsView.xib;
 			sourceTree = "<group>";
@@ -5609,6 +5622,7 @@
 				639E9CAA1C0DB7FB00019A75 /* Base */,
 				8CBD7BD020B6B88400E5DCC0 /* fr */,
 				6187B1D624B3272200D580FB /* hu */,
+				8BBC6A8C2C23270000960791 /* it */,
 			);
 			name = UIConfirmationDialog.xib;
 			sourceTree = "<group>";
@@ -5629,6 +5643,7 @@
 				639E9CB11C0DB83000019A75 /* Base */,
 				8CBD7BD720B6B88E00E5DCC0 /* fr */,
 				6187B1DD24B3272500D580FB /* hu */,
+				8BBC6A8B2C231C2900960791 /* it */,
 			);
 			name = SideMenuView.xib;
 			sourceTree = "<group>";
@@ -5639,6 +5654,7 @@
 				639E9CB41C0DB88200019A75 /* Base */,
 				8CBD7BD420B6B88A00E5DCC0 /* fr */,
 				6187B1DA24B3272400D580FB /* hu */,
+				8BBC6A8A2C231C0E00960791 /* it */,
 			);
 			name = PhoneMainView.xib;
 			sourceTree = "<group>";
@@ -5772,6 +5788,7 @@
 				F0AF06F21A24BA760086C9C1 /* ar */,
 				8CBD7BBB20B6B87100E5DCC0 /* fr */,
 				6187B1C124B3271A00D580FB /* hu */,
+				8BC578F02C247471003FDD32 /* it */,
 			);
 			name = ChatsListView.xib;
 			sourceTree = "<group>";
@@ -5808,6 +5825,7 @@
 				F0AF06F61A24BA760086C9C1 /* ar */,
 				8CBD7BBF20B6B87400E5DCC0 /* fr */,
 				6187B1C524B3271B00D580FB /* hu */,
+				8BC578F12C247B03003FDD32 /* it */,
 			);
 			name = DialerView.xib;
 			sourceTree = "<group>";
@@ -5844,6 +5862,7 @@
 				F0AF070F1A24BA770086C9C1 /* ar */,
 				8CBD7BB120B6B86900E5DCC0 /* fr */,
 				6187B1B724B3271600D580FB /* hu */,
+				8BBC6A852C230F0500960791 /* it */,
 			);
 			name = AssistantView.xib;
 			sourceTree = "<group>";
@@ -5869,6 +5888,7 @@
 				F0AF07111A24BA770086C9C1 /* ar */,
 				8CBD7BB220B6B86A00E5DCC0 /* fr */,
 				6187B1B824B3271600D580FB /* hu */,
+				8BBC6A842C2304B000960791 /* it */,
 			);
 			name = AssistantViewScreens.xib;
 			sourceTree = "<group>";

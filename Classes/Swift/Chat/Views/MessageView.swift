@@ -83,7 +83,7 @@ class MessageView:  UIView, UITextViewDelegate {
 		messageText.font = UIFont.systemFont(ofSize: 18)
 		messageText.delegate = self
 		messageText.textColor = UIColor.lightGray
-		messageText.text = "Message"
+		messageText.text = NSLocalizedString("Message", tableName: nil, bundle: .main, comment: "")
 		messageText.inputAccessoryView = UIView()
 		messageWithEmojiView.addArrangedSubview(emojisButton)
 		emojisButton.alignParentRight().matchParentHeight().done()
@@ -144,7 +144,7 @@ class MessageView:  UIView, UITextViewDelegate {
 	func textViewDidEndEditing(_ textView: UITextView) {
 		if messageText.text.isEmpty {
 			messageText.textColor = UIColor.lightGray
-			messageText.text = "Message"
+			messageText.text = NSLocalizedString("Message", tableName: nil, bundle: .main, comment: "")
 		}
 	}
 }

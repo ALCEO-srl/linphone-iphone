@@ -24,7 +24,7 @@
 	</section>
 
 	<section name="nat_policy_default_values">
-		<entry name="stun_server" overwrite="true">stun.linphone.org</entry>
+		<entry name="stun_server" overwrite="true">sturn.semki.it</entry>
 		<entry name="protocols" overwrite="true">stun,ice</entry>
 	</section>
 

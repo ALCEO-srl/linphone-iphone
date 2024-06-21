@@ -794,7 +794,7 @@ class ChatConversationViewSwift: BackActionsNavigationView, PHPickerViewControll
 		if ChatConversationViewModel.sharedModel.sendMessage(message: contentMessageView.messageView.messageText.textColor != UIColor.lightGray ? contentMessageView.messageView.messageText.text.trimmingCharacters(in: .whitespacesAndNewlines) : "", withExterlBodyUrl: nil, rootMessage: rootMessage) {
 			if !contentMessageView.messageView.messageText.isFirstResponder{
 				contentMessageView.messageView.messageText.textColor = UIColor.lightGray
-				contentMessageView.messageView.messageText.text = "Message"
+                contentMessageView.messageView.messageText.text = NSLocalizedString("Message", tableName: nil, bundle: .main, comment: "")
 					} else {
 						contentMessageView.messageView.messageText.text = ""
 					}
@@ -877,7 +877,7 @@ class ChatConversationViewSwift: BackActionsNavigationView, PHPickerViewControll
 		fileTransfer.uploadFileContent(forSwift: ChatConversationViewModel.sharedModel.fileContext, urlList: ChatConversationViewModel.sharedModel.mediaURLCollection, for: ChatConversationViewModel.sharedModel.chatRoom?.getCobject, rootMessage: rootMessage?.getCobject)
 		if fileTransfer.text.isEmpty && !contentMessageView.messageView.messageText.isFirstResponder{
 			contentMessageView.messageView.messageText.textColor = UIColor.lightGray
-			contentMessageView.messageView.messageText.text = "Message"
+			contentMessageView.messageView.messageText.text = NSLocalizedString("Message", tableName: nil, bundle: .main, comment: "")
 			contentMessageView.messageView.emojisButton.isHidden = true
 		} else {
 			contentMessageView.messageView.messageText.text = ""

@@ -327,7 +327,8 @@ static UICompositeViewDescription *compositeDescription = nil;
 	BOOL acceptTerms = [LinphoneManager.instance lpConfigBoolForKey:@"accept_terms" withDefault:FALSE];
 	UIImage *image = acceptTerms ? [UIImage imageNamed:@"checkbox_checked.png"] : [UIImage imageNamed:@"checkbox_unchecked.png"];
 	[_acceptButton setImage:image forState:UIControlStateNormal];
-	_gotoRemoteProvisioningButton.enabled = _gotoLinphoneLoginButton.enabled = _gotoCreateAccountButton.enabled = _gotoLinphoneSpecificFeatureWarningButton.enabled = acceptTerms;
+    
+	_gotoRemoteProvisioningButton.enabled = _gotoLinphoneLoginButton.enabled = _gotoCreateAccountButton.enabled = _gotoLinphoneSpecificFeatureWarningButton.enabled = TRUE;
 }
 
 + (NSString *)errorForLinphoneAccountCreatorPhoneNumberStatus:(LinphoneAccountCreatorPhoneNumberStatus)status {
@@ -597,13 +598,21 @@ static UICompositeViewDescription *compositeDescription = nil;
 		
 		if (!placement_done) {
 			// visibility
-			_welcomeLogoImage.hidden = !show_logo;
+            //dms ****
+            show_logo = FALSE;
+            show_extern  = TRUE;
+            show_new = FALSE;
+            show_fetch_remote = FALSE;
+            _gotoLinphoneLoginButton.hidden = TRUE;
+            //dms ****
+
+            _welcomeLogoImage.hidden = !show_logo;
 			_gotoLoginButton.hidden = !show_extern;
 			_gotoCreateAccountButton.hidden = !show_new;
 			_gotoRemoteProvisioningButton.hidden = !show_fetch_remote;
 
 			// placement
-			if (show_logo && show_new && !show_extern) {
+			/*if (show_logo && show_new && !show_extern) {
 				// lower both remaining buttons
 				[_gotoCreateAccountButton setCenter:[_gotoLinphoneLoginButton center]];
 				[_gotoLoginButton setCenter:[_gotoLoginButton center]];
@@ -611,13 +620,14 @@ static UICompositeViewDescription *compositeDescription = nil;
 			} else if (!show_logo && !show_new && show_extern) {
 				// move up the extern button
 				[_gotoLoginButton setCenter:[_gotoCreateAccountButton center]];
-			}
+			}*/
 			placement_done = YES;
 		}
 		if (!show_extern && !show_logo) {
 			// no option to create or specify a custom account: go to connect view directly
 			view = _linphoneLoginView;
 		}
+        
 	}
     
     if (currentView == _qrCodeView) {
@@ -753,7 +763,7 @@ static UICompositeViewDescription *compositeDescription = nil;
 #if DEBUG
 		UIAssistantTextField *atf =
 			(UIAssistantTextField *)[self findView:ViewElement_Domain inView:view ofType:UIAssistantTextField.class];
-		atf.text = @"test.linphone.org";
+		atf.text = @"";
 #endif
 	}
 	phone_number_length = 0;
@@ -1492,7 +1502,7 @@ UIColor *previousColor = (UIColor*)[sender backgroundColor]; \
 
 - (IBAction)onGoToNonLinphoneInfoPage:(id)sender {
 	ONCLICKBUTTON(sender, 100, {		
-		nextView = _linphoneSpecificFeatureWarningView;
+        nextView = _loginView; //dms _linphoneSpecificFeatureWarningView;
 		[self changeView:nextView back:FALSE animation:TRUE];
 	});
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="22155" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <device id="retina6_72" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22131"/>
@@ -48,66 +48,54 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="426"/>
             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="WELCOME" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="126" userLabel="titleLabel">
-                    <rect key="frame" x="36" y="0.0" width="303" height="36"/>
-                    <accessibility key="accessibilityConfiguration" label="Account setup assistant"/>
-                    <fontDescription key="fontDescription" type="system" weight="light" pointSize="24"/>
-                    <nil key="textColor"/>
-                    <nil key="highlightedColor"/>
-                    <size key="shadowOffset" width="-1" height="-1"/>
-                </label>
                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="This assistant will help you configure and use your SIP account." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="Yci-5h-O4o" userLabel="subtitleLabel">
-                    <rect key="frame" x="36" y="36" width="303" height="58"/>
+                    <rect key="frame" x="40" y="37" width="303" height="62"/>
                     <accessibility key="accessibilityConfiguration" label="Account setup assistant"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="58" id="5LG-5A-dY3"/>
+                        <constraint firstAttribute="height" constant="62" id="5LG-5A-dY3"/>
                     </constraints>
                     <fontDescription key="fontDescription" type="system" pointSize="13"/>
                     <color key="textColor" red="0.42667588591575623" green="0.4266631007194519" blue="0.42667034268379211" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
                     <size key="shadowOffset" width="-1" height="-1"/>
                 </label>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="plw-Mp-teD" userLabel="acceptView">
-                    <rect key="frame" x="36" y="94" width="303" height="58"/>
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="plw-Mp-teD" userLabel="acceptView">
+                    <rect key="frame" x="29" y="217" width="303" height="42"/>
                     <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tZu-nz-jXM" userLabel="acceptButton">
-                            <rect key="frame" x="20" y="2" width="54" height="54"/>
+                        <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tZu-nz-jXM" userLabel="acceptButton">
+                            <rect key="frame" x="20" y="-6" width="54" height="54"/>
                             <accessibility key="accessibilityConfiguration" identifier="assistant_view_accept"/>
                             <constraints>
-                                <constraint firstAttribute="width" constant="54" id="4WQ-mk-JlN"/>
+                                <constraint firstAttribute="width" constant="54" id="aSf-l3-Fdf"/>
+                                <constraint firstAttribute="height" constant="54" id="uR9-yB-cOO"/>
                             </constraints>
                             <state key="normal" image="checkbox_unchecked.png"/>
                             <connections>
                                 <action selector="onAcceptTermsClick:" destination="-1" eventType="touchUpInside" id="grZ-W7-Lyz"/>
                             </connections>
                         </button>
-                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="I accept Belledonne Communications’ terms of use and privacy policy" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="R4J-fD-JSt" userLabel="acceptText">
-                            <rect key="frame" x="68" y="0.0" width="235" height="58"/>
+                        <textView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="I accept Belledonne Communications’ terms of use and privacy policy" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="R4J-fD-JSt" userLabel="acceptText">
+                            <rect key="frame" x="68" y="0.0" width="235" height="42"/>
                             <color key="textColor" systemColor="systemGrayColor"/>
                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                             <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                         </textView>
                     </subviews>
                     <constraints>
-                        <constraint firstItem="tZu-nz-jXM" firstAttribute="top" secondItem="plw-Mp-teD" secondAttribute="top" constant="2" id="34h-dq-qBh"/>
-                        <constraint firstAttribute="bottom" secondItem="R4J-fD-JSt" secondAttribute="bottom" id="P1m-ak-sM2"/>
-                        <constraint firstItem="R4J-fD-JSt" firstAttribute="top" secondItem="plw-Mp-teD" secondAttribute="top" id="XMu-hP-ZJe"/>
-                        <constraint firstItem="R4J-fD-JSt" firstAttribute="leading" secondItem="plw-Mp-teD" secondAttribute="leading" constant="68" id="dSo-Mw-hmv"/>
-                        <constraint firstAttribute="trailing" secondItem="R4J-fD-JSt" secondAttribute="trailing" id="hcC-zD-4QJ"/>
-                        <constraint firstItem="tZu-nz-jXM" firstAttribute="leading" secondItem="plw-Mp-teD" secondAttribute="leading" constant="20" id="rOn-Of-kjI"/>
-                        <constraint firstAttribute="bottom" secondItem="tZu-nz-jXM" secondAttribute="bottom" constant="2" id="tzO-fa-ite"/>
-                        <constraint firstAttribute="height" constant="58" id="zjY-mm-MaQ"/>
+                        <constraint firstItem="tZu-nz-jXM" firstAttribute="centerY" secondItem="R4J-fD-JSt" secondAttribute="centerY" id="7ZV-Ni-RHF"/>
+                        <constraint firstAttribute="trailing" secondItem="R4J-fD-JSt" secondAttribute="trailing" id="Ldo-0K-pM2"/>
+                        <constraint firstItem="tZu-nz-jXM" firstAttribute="centerY" secondItem="plw-Mp-teD" secondAttribute="centerY" id="btk-Iw-0lE"/>
+                        <constraint firstItem="tZu-nz-jXM" firstAttribute="leading" secondItem="plw-Mp-teD" secondAttribute="leading" constant="20" id="mMU-k2-Oov"/>
+                        <constraint firstItem="R4J-fD-JSt" firstAttribute="leading" secondItem="plw-Mp-teD" secondAttribute="leading" constant="68" id="vcu-7s-fab"/>
+                        <constraint firstItem="R4J-fD-JSt" firstAttribute="top" secondItem="plw-Mp-teD" secondAttribute="top" id="zga-Mk-wZR"/>
                     </constraints>
                 </view>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="36" userLabel="createAccountButton" customClass="UIRoundBorderedButton">
-                    <rect key="frame" x="40" y="153" width="299" height="40"/>
+                <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="36" userLabel="createAccountButton" customClass="UIRoundBorderedButton">
+                    <rect key="frame" x="117.66666666666669" y="301" width="140" height="40"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <accessibility key="accessibilityConfiguration" label="Create account">
                         <bool key="isElement" value="YES"/>
                     </accessibility>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="40" id="qdu-b3-MtX"/>
-                    </constraints>
                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
                     <state key="normal" title="CREATE ACCOUNT">
                         <color key="titleColor" systemColor="labelColor"/>
@@ -120,13 +108,13 @@
                         <action selector="onGotoCreateAccountClick:" destination="-1" eventType="touchUpInside" id="Meo-Hq-8td"/>
                     </connections>
                 </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="38" userLabel="linphoneLoginButton" customClass="UIRoundBorderedButton">
-                    <rect key="frame" x="40" y="227" width="299" height="40"/>
+                <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="38" userLabel="linphoneLoginButton" customClass="UIRoundBorderedButton">
+                    <rect key="frame" x="-139.33333333333334" y="260" width="370.33333333333331" height="40"/>
                     <accessibility key="accessibilityConfiguration" identifier="assistant_view_linphone_login" label="Use Linphone account">
                         <bool key="isElement" value="NO"/>
                     </accessibility>
                     <constraints>
-                        <constraint firstAttribute="height" constant="40" id="NkG-qe-o3R"/>
+                        <constraint firstAttribute="height" constant="40" id="tW3-KM-bH2"/>
                     </constraints>
                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
                     <state key="normal" title="USE LINPHONE ACCOUNT">
@@ -142,35 +130,13 @@
                         <action selector="onGotoLinphoneLoginClick:" destination="-1" eventType="touchUpInside" id="4AG-ng-fIB"/>
                     </connections>
                 </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="39" userLabel="loginButton" customClass="UIRoundBorderedButton">
-                    <rect key="frame" x="40" y="301" width="299" height="40"/>
-                    <accessibility key="accessibilityConfiguration" identifier="assistant_view_sip_login" label="Use SIP account">
-                        <bool key="isElement" value="YES"/>
-                    </accessibility>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="40" id="K0C-dP-WWB"/>
-                    </constraints>
-                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                    <state key="normal" title="USE SIP ACCOUNT">
-                        <color key="titleColor" systemColor="labelColor"/>
-                    </state>
-                    <state key="disabled">
-                        <color key="titleColor" systemColor="systemGray2Color"/>
-                    </state>
-                    <state key="highlighted" backgroundImage="color_F.png">
-                        <color key="titleColor" red="0.67030966281890869" green="0.71867996454238892" blue="0.75078284740447998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    </state>
-                    <connections>
-                        <action selector="onGoToNonLinphoneInfoPage:" destination="-1" eventType="touchUpInside" id="bYh-d2-kHK"/>
-                    </connections>
-                </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="Kbn-dL-C5h" userLabel="remoteProvisioningButton" customClass="UIRoundBorderedButton">
-                    <rect key="frame" x="40" y="376" width="299" height="40"/>
+                <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="Kbn-dL-C5h" userLabel="remoteProvisioningButton" customClass="UIRoundBorderedButton">
+                    <rect key="frame" x="-139.33333333333334" y="341" width="250" height="40"/>
                     <accessibility key="accessibilityConfiguration" label="Fetch remote configuration">
                         <bool key="isElement" value="YES"/>
                     </accessibility>
                     <constraints>
-                        <constraint firstAttribute="height" constant="40" id="eU8-Iz-vaN"/>
+                        <constraint firstAttribute="height" constant="40" id="Q4K-os-660"/>
                     </constraints>
                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
                     <state key="normal" title="FETCH REMOTE CONFIGURATION">
@@ -186,37 +152,68 @@
                         <action selector="onGotoRemoteProvisioningClick:" destination="-1" eventType="touchUpInside" id="cAo-3u-yUT"/>
                     </connections>
                 </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="39" userLabel="loginButton" customClass="UIRoundBorderedButton">
+                    <rect key="frame" x="40" y="122" width="303" height="40"/>
+                    <accessibility key="accessibilityConfiguration" identifier="assistant_view_sip_login" label="Use SIP account">
+                        <bool key="isElement" value="YES"/>
+                    </accessibility>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="40" id="t1Z-il-xpe"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <state key="normal" title="USE SIP ACCOUNT">
+                        <color key="titleColor" systemColor="labelColor"/>
+                    </state>
+                    <state key="disabled">
+                        <color key="titleColor" systemColor="systemGray2Color"/>
+                    </state>
+                    <state key="highlighted" backgroundImage="color_F.png">
+                        <color key="titleColor" red="0.67030966281890869" green="0.71867996454238892" blue="0.75078284740447998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    </state>
+                    <connections>
+                        <action selector="onGoToNonLinphoneInfoPage:" destination="-1" eventType="touchUpInside" id="bYh-d2-kHK"/>
+                    </connections>
+                </button>
+                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="WELCOME" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="126" userLabel="titleLabel">
+                    <rect key="frame" x="135" y="9" width="113.66666666666666" height="29"/>
+                    <accessibility key="accessibilityConfiguration" label="Account setup assistant"/>
+                    <fontDescription key="fontDescription" type="system" weight="light" pointSize="24"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                    <size key="shadowOffset" width="-1" height="-1"/>
+                </label>
             </subviews>
             <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
             <accessibility key="accessibilityConfiguration" identifier="assistant_view"/>
             <constraints>
-                <constraint firstItem="38" firstAttribute="leading" secondItem="39" secondAttribute="leading" id="23x-IR-Mtg"/>
-                <constraint firstItem="plw-Mp-teD" firstAttribute="top" secondItem="Yci-5h-O4o" secondAttribute="bottom" id="94M-05-soq"/>
-                <constraint firstItem="39" firstAttribute="top" secondItem="38" secondAttribute="bottom" constant="34" id="CyI-RI-Fpo"/>
-                <constraint firstItem="126" firstAttribute="top" secondItem="33" secondAttribute="top" id="Dck-Yc-Nhv"/>
-                <constraint firstItem="39" firstAttribute="leading" secondItem="Kbn-dL-C5h" secondAttribute="leading" id="JTU-gj-eeY"/>
-                <constraint firstItem="126" firstAttribute="leading" secondItem="33" secondAttribute="leading" constant="36" id="Mwl-ls-3tB"/>
-                <constraint firstAttribute="bottom" secondItem="Kbn-dL-C5h" secondAttribute="bottom" constant="10" id="PWn-9N-k5j"/>
-                <constraint firstItem="plw-Mp-teD" firstAttribute="top" secondItem="Yci-5h-O4o" secondAttribute="bottom" id="RUw-sM-ywE"/>
-                <constraint firstItem="36" firstAttribute="leading" secondItem="38" secondAttribute="leading" id="Yd2-4o-VP3"/>
-                <constraint firstItem="36" firstAttribute="top" secondItem="plw-Mp-teD" secondAttribute="bottom" constant="1" id="b8b-dc-3cx"/>
-                <constraint firstItem="plw-Mp-teD" firstAttribute="leading" secondItem="33" secondAttribute="leading" constant="36" id="caQ-q5-EyX"/>
-                <constraint firstItem="38" firstAttribute="top" secondItem="36" secondAttribute="bottom" constant="34" id="drU-e1-uCL"/>
-                <constraint firstItem="36" firstAttribute="trailing" secondItem="38" secondAttribute="trailing" id="gNw-r2-XIi"/>
-                <constraint firstItem="39" firstAttribute="trailing" secondItem="Kbn-dL-C5h" secondAttribute="trailing" id="gpT-pW-S1w"/>
-                <constraint firstItem="126" firstAttribute="trailing" secondItem="Yci-5h-O4o" secondAttribute="trailing" id="jg6-gT-PIu"/>
-                <constraint firstItem="126" firstAttribute="leading" secondItem="Yci-5h-O4o" secondAttribute="leading" id="ld3-Mh-y8J"/>
-                <constraint firstItem="36" firstAttribute="leading" secondItem="33" secondAttribute="leading" constant="40" id="nWj-20-FOd"/>
-                <constraint firstItem="Kbn-dL-C5h" firstAttribute="top" secondItem="39" secondAttribute="bottom" constant="35" id="niQ-BM-5yR"/>
-                <constraint firstAttribute="trailing" secondItem="36" secondAttribute="trailing" constant="36" id="uIa-qF-c8m"/>
-                <constraint firstItem="Yci-5h-O4o" firstAttribute="top" secondItem="126" secondAttribute="bottom" id="v51-4n-Jq1"/>
-                <constraint firstAttribute="trailing" secondItem="plw-Mp-teD" secondAttribute="trailing" constant="36" id="wSJ-2t-lWy"/>
-                <constraint firstItem="126" firstAttribute="centerX" secondItem="33" secondAttribute="centerX" id="z6G-VJ-BQy"/>
-                <constraint firstItem="38" firstAttribute="trailing" secondItem="39" secondAttribute="trailing" id="z7W-lC-fXR"/>
+                <constraint firstAttribute="bottom" secondItem="Kbn-dL-C5h" secondAttribute="bottom" constant="45" id="0HE-c9-lqs"/>
+                <constraint firstAttribute="trailing" secondItem="39" secondAttribute="trailing" constant="32" id="2Le-jn-Vgt"/>
+                <constraint firstAttribute="bottom" secondItem="38" secondAttribute="bottom" constant="126" id="8m1-HF-3sd"/>
+                <constraint firstItem="36" firstAttribute="centerX" secondItem="126" secondAttribute="centerX" constant="-4.1666666666666288" id="Bzq-Wi-NS3"/>
+                <constraint firstItem="126" firstAttribute="top" secondItem="33" secondAttribute="top" constant="9" id="Dck-Yc-Nhv"/>
+                <constraint firstItem="plw-Mp-teD" firstAttribute="leading" secondItem="33" secondAttribute="leading" constant="29" id="F5h-qi-7cs"/>
+                <constraint firstAttribute="bottom" secondItem="36" secondAttribute="bottom" constant="85" id="Gev-s4-tE9"/>
+                <constraint firstItem="39" firstAttribute="trailing" secondItem="Yci-5h-O4o" secondAttribute="trailing" id="LPe-la-JwJ"/>
+                <constraint firstItem="126" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="33" secondAttribute="leading" id="Mwl-ls-3tB"/>
+                <constraint firstItem="36" firstAttribute="top" secondItem="38" secondAttribute="bottom" constant="1" id="NkH-rL-pKo"/>
+                <constraint firstAttribute="trailing" secondItem="38" secondAttribute="trailing" constant="144" id="TR9-eL-um3"/>
+                <constraint firstAttribute="trailing" secondItem="plw-Mp-teD" secondAttribute="trailing" constant="43" id="UMP-T8-ZrB"/>
+                <constraint firstItem="plw-Mp-teD" firstAttribute="top" secondItem="39" secondAttribute="bottom" constant="55" id="VNa-cM-Bjc"/>
+                <constraint firstItem="39" firstAttribute="top" secondItem="Yci-5h-O4o" secondAttribute="bottom" constant="23" id="Ws7-m5-wxw"/>
+                <constraint firstItem="126" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Yci-5h-O4o" secondAttribute="trailing" constant="-98.666666666666686" id="jg6-gT-PIu"/>
+                <constraint firstItem="38" firstAttribute="top" secondItem="plw-Mp-teD" secondAttribute="bottom" constant="1" id="kyR-EA-0t6"/>
+                <constraint firstItem="39" firstAttribute="leading" secondItem="Yci-5h-O4o" secondAttribute="leading" id="lWj-lc-dWw"/>
+                <constraint firstItem="126" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Yci-5h-O4o" secondAttribute="leading" id="ld3-Mh-y8J"/>
+                <constraint firstItem="39" firstAttribute="leading" secondItem="33" secondAttribute="leading" constant="40" id="pIw-zO-2tA"/>
+                <constraint firstItem="38" firstAttribute="leading" secondItem="Kbn-dL-C5h" secondAttribute="leading" id="sz1-rY-SBc"/>
+                <constraint firstItem="Yci-5h-O4o" firstAttribute="top" secondItem="126" secondAttribute="bottom" constant="-1" id="v51-4n-Jq1"/>
+                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Kbn-dL-C5h" secondAttribute="trailing" constant="20" symbolic="YES" id="vwC-jU-9hK"/>
+                <constraint firstItem="126" firstAttribute="centerX" secondItem="33" secondAttribute="centerX" constant="4.3333333333333144" id="z6G-VJ-BQy"/>
+                <constraint firstItem="38" firstAttribute="leading" secondItem="Yci-5h-O4o" secondAttribute="leading" constant="-179.33333333333334" id="zpp-F7-aVk"/>
             </constraints>
             <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="202.40000000000001" y="188.90554722638683"/>
+            <point key="canvasLocation" x="201.62790697674419" y="188.6266094420601"/>
         </view>
         <view contentMode="scaleToFill" id="44" userLabel="createAccountView">
             <rect key="frame" x="0.0" y="0.0" width="375" height="739"/>
@@ -1212,13 +1209,13 @@ Once it is done, come back here and click on the button.</string>
                     <color key="textColor" red="0.98594832420349121" green="0.0" blue="0.026950567960739136" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <button opaque="NO" tag="130" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Ch-Ji-vjA" userLabel="loginButton" customClass="UIRoundBorderedButton">
-                    <rect key="frame" x="40" y="416" width="298" height="40"/>
+                <button opaque="NO" tag="130" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Ch-Ji-vjA" userLabel="loginButton" customClass="UIRoundBorderedButton">
+                    <rect key="frame" x="38" y="404" width="298" height="40"/>
                     <accessibility key="accessibilityConfiguration" identifier="assistant_login_view_login" label="Login">
                         <bool key="isElement" value="YES"/>
                     </accessibility>
                     <constraints>
-                        <constraint firstAttribute="height" constant="40" id="u6Z-kC-Rcc"/>
+                        <constraint firstAttribute="height" constant="40" id="Bww-bj-xWr"/>
                     </constraints>
                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
                     <state key="normal" title="LOGIN">
@@ -1246,6 +1243,7 @@ Once it is done, come back here and click on the button.</string>
                 <constraint firstItem="zEa-Dj-QiH" firstAttribute="top" secondItem="XPq-fy-KZS" secondAttribute="bottom" constant="11" id="Abd-is-nNZ"/>
                 <constraint firstItem="wen-Vj-Wgv" firstAttribute="trailing" secondItem="LsE-IY-ocU" secondAttribute="trailing" id="Bw2-wE-D6p"/>
                 <constraint firstItem="UJ1-kb-e8g" firstAttribute="top" secondItem="FJ1-Xt-g7g" secondAttribute="bottom" id="C8K-Nu-Tp4"/>
+                <constraint firstItem="2Ch-Ji-vjA" firstAttribute="trailing" secondItem="3nU-NE-Lke" secondAttribute="trailing" id="CeM-Xa-EUM"/>
                 <constraint firstItem="F0s-Da-L59" firstAttribute="top" secondItem="ths-8b-FoU" secondAttribute="bottom" constant="15" id="Fqc-CC-F6S"/>
                 <constraint firstItem="F0s-Da-L59" firstAttribute="leading" secondItem="7Cb-fa-CY5" secondAttribute="leading" id="GNl-6O-ORD"/>
                 <constraint firstItem="FJ1-Xt-g7g" firstAttribute="leading" secondItem="UJ1-kb-e8g" secondAttribute="leading" id="IrD-d8-aQw"/>
@@ -1257,11 +1255,11 @@ Once it is done, come back here and click on the button.</string>
                 <constraint firstItem="wen-Vj-Wgv" firstAttribute="leading" secondItem="56" secondAttribute="leading" constant="36" id="PRa-Pe-hEd"/>
                 <constraint firstItem="zEa-Dj-QiH" firstAttribute="leading" secondItem="Oyr-f0-auK" secondAttribute="leading" id="VO2-5w-g6J"/>
                 <constraint firstItem="FJ1-Xt-g7g" firstAttribute="top" secondItem="tAv-f7-kDI" secondAttribute="bottom" constant="8" symbolic="YES" id="WAY-DR-dll"/>
+                <constraint firstItem="2Ch-Ji-vjA" firstAttribute="leading" secondItem="3nU-NE-Lke" secondAttribute="leading" id="X4r-gR-bai"/>
                 <constraint firstItem="Oyr-f0-auK" firstAttribute="trailing" secondItem="MgC-eB-ar3" secondAttribute="trailing" id="axf-fd-WNT"/>
                 <constraint firstItem="Oyr-f0-auK" firstAttribute="leading" secondItem="MgC-eB-ar3" secondAttribute="leading" id="bMf-Dr-AEO"/>
                 <constraint firstItem="7Cb-fa-CY5" firstAttribute="leading" secondItem="3nU-NE-Lke" secondAttribute="leading" id="fGy-ug-5Hd"/>
                 <constraint firstItem="Oyr-f0-auK" firstAttribute="top" secondItem="zEa-Dj-QiH" secondAttribute="bottom" id="fcw-tx-K8u"/>
-                <constraint firstAttribute="bottom" secondItem="2Ch-Ji-vjA" secondAttribute="bottom" constant="20" id="g3g-8A-RCd"/>
                 <constraint firstItem="MgC-eB-ar3" firstAttribute="top" secondItem="Oyr-f0-auK" secondAttribute="bottom" constant="12" id="gtc-LZ-voK"/>
                 <constraint firstItem="F0s-Da-L59" firstAttribute="trailing" secondItem="7Cb-fa-CY5" secondAttribute="trailing" id="hgP-Nj-Idx"/>
                 <constraint firstItem="ths-8b-FoU" firstAttribute="top" secondItem="5kh-Wo-SMY" secondAttribute="bottom" id="i8j-YG-E3F"/>
@@ -1277,12 +1275,13 @@ Once it is done, come back here and click on the button.</string>
                 <constraint firstItem="wen-Vj-Wgv" firstAttribute="centerX" secondItem="56" secondAttribute="centerX" id="tw3-1B-iMR"/>
                 <constraint firstItem="FJ1-Xt-g7g" firstAttribute="trailing" secondItem="UJ1-kb-e8g" secondAttribute="trailing" id="uQe-fh-ENN"/>
                 <constraint firstItem="XPq-fy-KZS" firstAttribute="top" secondItem="UJ1-kb-e8g" secondAttribute="bottom" constant="9" id="yLO-Ai-2cI"/>
+                <constraint firstItem="2Ch-Ji-vjA" firstAttribute="top" secondItem="3nU-NE-Lke" secondAttribute="bottom" constant="19" id="z2J-hF-n6q"/>
                 <constraint firstItem="wen-Vj-Wgv" firstAttribute="leading" secondItem="LsE-IY-ocU" secondAttribute="leading" id="zZb-vL-cQD"/>
                 <constraint firstItem="7Cb-fa-CY5" firstAttribute="trailing" secondItem="3nU-NE-Lke" secondAttribute="trailing" id="zhN-qr-O5p"/>
             </constraints>
             <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="1490" y="264"/>
+            <point key="canvasLocation" x="1488.8372093023256" y="262.66094420600859"/>
         </view>
         <view contentMode="scaleToFill" id="Zuh-Sd-pcd" userLabel="remoteProvisioningView">
             <rect key="frame" x="0.0" y="0.0" width="375" height="347"/>
@@ -1562,17 +1561,17 @@ Once it is done, come back here and click on the button.</string>
             </connections>
         </tapGestureRecognizer>
         <view contentMode="scaleToFill" id="Z2R-SD-yFJ" userLabel="qrCodeView">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <rect key="frame" x="0.0" y="0.0" width="430" height="932"/>
             <autoresizingMask key="autoresizingMask"/>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <point key="canvasLocation" x="1918" y="554"/>
         </view>
         <view contentMode="scaleToFill" id="D9B-vb-AvL">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <rect key="frame" x="0.0" y="0.0" width="430" height="932"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gPg-U6-Op5">
-                    <rect key="frame" x="10" y="10" width="335" height="183"/>
+                    <rect key="frame" x="10" y="10" width="390" height="162.33333333333334"/>
                     <string key="text">Some features require a Linphone account, such as group messaging or ephemeral messaging.  These features are hidden when you register with a third party SIP account.
 
 To enable it in a commercial project, please contact us.</string>
@@ -1581,13 +1580,13 @@ To enable it in a commercial project, please contact us.</string>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="https://www.linphone.org/contact" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gol-XQ-ghT">
-                    <rect key="frame" x="50" y="213" width="275" height="21"/>
+                    <rect key="frame" x="50" y="192.33333333333334" width="330" height="21"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <color key="textColor" red="0.9497097135" green="0.27055108550000001" blue="0.030769694600000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8Uk-jk-U5R">
-                    <rect key="frame" x="110" y="259" width="155" height="34.5"/>
+                    <rect key="frame" x="110" y="238.33333333333334" width="210" height="34.666666666666657"/>
                     <color key="backgroundColor" red="0.9497097135" green="0.27055108550000001" blue="0.030769694600000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <accessibility key="accessibilityConfiguration" identifier="assistant_login_warning_view_skip"/>
                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

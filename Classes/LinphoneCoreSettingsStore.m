@@ -155,7 +155,6 @@
 	// default values
 	{
 		[self setBool:NO forKey:@"account_pushnotification_preference"];
-		[self setBool:NO forKey:@"account_bundle_mode_preference"];
 		[self setObject:@"" forKey:@"account_mandatory_username_preference"];
 		[self setObject:@"" forKey:@"account_mandatory_domain_preference"];
 		[self setCString:"" forKey:@"account_display_name_preference"];
@@ -186,9 +185,7 @@
 			BOOL pushEnabled = linphone_account_params_get_push_notification_allowed(accountParams);
 			[self setBool:pushEnabled forKey:@"account_pushnotification_preference"];
 			
-			BOOL bundleModeEnabled = linphone_account_params_rtp_bundle_enabled(accountParams);
-			[self setBool:bundleModeEnabled forKey:@"account_bundle_mode_preference"];
-			
+		
 			const LinphoneAddress *identity_addr = linphone_account_params_get_identity_address(accountParams);
 			const char *server_addr = linphone_account_params_get_server_addr(accountParams);
 			LinphoneAddress *proxy_addr = linphone_core_interpret_url_2(LC, server_addr, false);
@@ -625,7 +622,7 @@
 	if (username && [username length] > 0 && domain && [domain length] > 0) {
 		int expire = [self integerForKey:@"account_expire_preference"];
 		BOOL pushnotification = [self boolForKey:@"account_pushnotification_preference"];
-		BOOL bundlemode = [self boolForKey:@"account_bundle_mode_preference"];
+		
 		NSString *prefix = [self stringForKey:@"account_prefix_preference"];
 		BOOL use_prefix = [self boolForKey:@"apply_international_prefix_for_calls_and_chats"];
 		NSString *proxyAddress = [self stringForKey:@"account_proxy_preference"];
@@ -705,7 +702,7 @@
 
 		// use empty string "" instead of NULL to avoid being overwritten by default proxy config values
 		linphone_account_params_set_push_notification_allowed(newAccountParams, pushnotification);
-		linphone_account_params_enable_rtp_bundle(newAccountParams, bundlemode);
+		linphone_account_params_enable_rtp_bundle(newAccountParams, FALSE);
 		linphone_account_params_set_push_notification_allowed(newAccountParams, pushnotification);
 		linphone_account_params_set_remote_push_notification_allowed(newAccountParams, pushnotification);
 		
