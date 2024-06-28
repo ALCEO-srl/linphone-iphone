@@ -238,7 +238,7 @@
 								 intentIdentifiers:[[NSMutableArray alloc] init]
 										   options:UNNotificationCategoryOptionCustomDismissAction];
 	// Msg category
-	/*
+	
 	UNTextInputNotificationAction *act_reply =
 	[UNTextInputNotificationAction actionWithIdentifier:@"Reply"
 												  title:NSLocalizedString(@"Reply", nil)
@@ -252,7 +252,7 @@
 										   actions:[NSArray arrayWithObjects:act_reply, act_seen, nil]
 								 intentIdentifiers:[[NSMutableArray alloc] init]
 										   options:UNNotificationCategoryOptionCustomDismissAction];
-	*/
+	
 	
 	// Video Request Category
 	UNNotificationAction *act_accept =

@@ -61,8 +61,11 @@ class NotificationService: UNNotificationServiceExtension {
 			}
 			
 			if let bestAttemptContent = bestAttemptContent {
-				createCore()
 				
+
+                createCore()
+                
+			
 				if (!(lc!.config?.getBool(section: "app", key: "disable_chat_feature", defaultValue: true))!){
 					NotificationService.log.message(message: "received push payload : \(bestAttemptContent.userInfo.debugDescription)")
 
@@ -105,6 +108,17 @@ class NotificationService: UNNotificationServiceExtension {
 						}
 					} else if let callId = bestAttemptContent.userInfo["call-id"] as? String {
 						NotificationService.log.message(message: "fetch msg for callid ["+callId+"]")
+                        
+                        /*bestAttemptContent.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "msg.caf"))
+                        bestAttemptContent.title = NSLocalizedString("Message received merda", comment: "")
+                        bestAttemptContent.body = "body merda"
+                       
+
+                        bestAttemptContent.categoryIdentifier = "msg_cat"
+                        contentHandler(bestAttemptContent)
+                        return ;*/
+                        
+                        
 						let message = lc!.getNewMessageFromCallid(callId: callId)
 
 						if let message = message {
@@ -134,11 +148,11 @@ class NotificationService: UNNotificationServiceExtension {
 							bestAttemptContent.userInfo.updateValue(msgData?.peerAddr as Any, forKey: "peer_addr")
 							bestAttemptContent.userInfo.updateValue(msgData?.localAddr as Any, forKey: "local_addr")
 							
-							if message.reactionContent != " " {
+							//if message.reactionContent != " " {
 								contentHandler(bestAttemptContent)
-							}else {
-								contentHandler(UNNotificationContent())
-							}
+							//}else {
+							//	contentHandler(UNNotificationContent())
+							//}
 							
 							return
 						} else {
