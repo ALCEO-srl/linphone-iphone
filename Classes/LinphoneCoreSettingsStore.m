@@ -539,7 +539,7 @@
 		[self setBool:[lm lpConfigBoolForKey:@"screenshot_preference" withDefault:NO] forKey:@"screenshot_preference"];
 		[self setBool:[lm lpConfigBoolForKey:@"autoanswer_notif_preference"] forKey:@"autoanswer_notif_preference"];
 		[self setBool:[lm lpConfigBoolForKey:@"show_msg_in_notif" withDefault:YES] forKey:@"show_msg_in_notif"];
-		[self setBool:[lm lpConfigBoolForKey:@"use_rls_presence" withDefault:YES] forKey:@"use_rls_presence"];
+		[self setBool:[lm lpConfigBoolForKey:@"use_rls_presence" withDefault:YES] forKey:@"use_rls_presence"]; //dms
 		[self setBool:[lm lpConfigBoolForKey:@"enable_first_login_view_preference"]
 			   forKey:@"enable_first_login_view_preference"];
 		[self setBool:[lm lpConfigBoolForKey:@"enable_broadcast_conference_feature" withDefault:NO] forKey:@"enable_broadcast_conference_feature"];

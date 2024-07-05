@@ -108,16 +108,7 @@ class NotificationService: UNNotificationServiceExtension {
 						}
 					} else if let callId = bestAttemptContent.userInfo["call-id"] as? String {
 						NotificationService.log.message(message: "fetch msg for callid ["+callId+"]")
-                        
-                        /*bestAttemptContent.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "msg.caf"))
-                        bestAttemptContent.title = NSLocalizedString("Message received merda", comment: "")
-                        bestAttemptContent.body = "body merda"
-                       
-
-                        bestAttemptContent.categoryIdentifier = "msg_cat"
-                        contentHandler(bestAttemptContent)
-                        return ;*/
-                        
+                     
                         
 						let message = lc!.getNewMessageFromCallid(callId: callId)
 

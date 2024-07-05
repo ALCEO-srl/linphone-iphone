@@ -30,5 +30,6 @@
 @property(nonatomic, assign) Contact *contact;
 
 - (id)initWithIdentifier:(NSString*)identifier;
+- (NSString *) getPresenceIconAsString:(LinphonePresenceModel *) presenceModel; //dms
 
 @end

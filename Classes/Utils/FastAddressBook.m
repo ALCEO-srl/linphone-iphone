@@ -181,6 +181,10 @@
 
 - (void) loadLinphoneFriends {
 	// load Linphone friends
+    
+    
+    
+   
 	const MSList *lists = linphone_core_get_friends_lists(LC);
 	while (lists) {
 		LinphoneFriendList *fl = lists->data;
@@ -209,8 +213,10 @@
 - (void) fetchContactsInBackGroundThread{
 	[_addressBookMap removeAllObjects];
 	_addressBookMap = [NSMutableDictionary dictionary];
-	
-	if ([LinphoneManager.instance lpConfigBoolForKey:@"enable_native_address_book"]) {
+    
+    [self loadLinphoneFriends]; //dms
+    
+	/*if ([LinphoneManager.instance lpConfigBoolForKey:@"enable_native_address_book"]) {
 		CNEntityType entityType = CNEntityTypeContacts;
 		[store requestAccessForEntityType:entityType completionHandler:^(BOOL granted, NSError *_Nullable error) {
 			BOOL success = FALSE;
@@ -243,7 +249,7 @@
 		}];
 	} else {
 		[self loadLinphoneFriends];
-	}
+	}*/
 	
 	
 }

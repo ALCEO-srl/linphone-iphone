@@ -234,7 +234,7 @@ class Avatar : UIView {
         return avatarWithPresence.toImage()
 	}
 	
-    @objc static func updatePresenceImage(contact:Contact) -> UIImageView {
+    @objc static func updatePresenceImage(contact:Contact) -> UIImageView { //presence dms
 		if contact.friend != nil {
 			let friend = Friend.getSwiftObject(cObject: contact.friend)
 			

@@ -51,6 +51,7 @@
 
 static LinphoneCore *theLinphoneCore = nil;
 static LinphoneManager *theLinphoneManager = nil;
+static BcsWsService *theBcsWsService = nil; //dms
 
 NSString *const LINPHONERC_APPLICATION_KEY = @"app";
 
@@ -68,6 +69,7 @@ NSString *const kLinphoneBluetoothAvailabilityUpdate = @"LinphoneBluetoothAvaila
 NSString *const kLinphoneConfiguringStateUpdate = @"LinphoneConfiguringStateUpdate";
 NSString *const kLinphoneGlobalStateUpdate = @"LinphoneGlobalStateUpdate";
 NSString *const kLinphoneNotifyReceived = @"LinphoneNotifyReceived";
+NSString *const kLinphoneNotifyPresenceReceived = @"LinphoneNotifyPresenceReceived";
 NSString *const kLinphoneNotifyPresenceReceivedForUriOrTel = @"LinphoneNotifyPresenceReceivedForUriOrTel";
 NSString *const kLinphoneCallEncryptionChanged = @"LinphoneCallEncryptionChanged";
 NSString *const kLinphoneFileTransferSendUpdate = @"LinphoneFileTransferSendUpdate";
@@ -211,7 +213,7 @@ struct codec_name_pref_table codec_pref_table[] = {{"speex", 8000, "speex_8k_pre
 	@synchronized(self) {
 		if (theLinphoneManager == nil) {
 			theLinphoneManager = [[LinphoneManager alloc] init];
-		}
+    	}
 	}
 	return theLinphoneManager;
 }
@@ -232,6 +234,11 @@ struct codec_name_pref_table codec_pref_table[] = {{"speex", 8000, "speex_8k_pre
 		});
 	return dir == NSLocaleLanguageDirectionRightToLeft;
 }
+
++ (void)retrieveBuddies {
+    BcsWsService *service = [[BcsWsService alloc] initWithServer:@"bcsws.alceo.com" port:@"8080"];
+}
+
 
 #pragma mark - Lifecycle Functions
 
@@ -294,6 +301,8 @@ struct codec_name_pref_table codec_pref_table[] = {{"speex", 8000, "speex_8k_pre
 
 		[self migrateFromUserPrefs];
 		[self loadAvatar];
+   
+
 	}
 	return self;
 }
@@ -797,6 +806,87 @@ message:(const char *)cmessage {
 		message = NSLocalizedString(@"Unknown error", nil);
 		break;
 	}
+    
+    //dms ***********************
+    //This code will request the user configuration from our BCS web service every time an account is successfully registered. This
+    //configuration contains the buddy list we want to use to populate the contacts view instead of the phone's address book.
+    LinphoneAccount *defaultAccount = linphone_core_get_default_account(lc);
+    
+    LinphoneAccountParams const *accountParams = linphone_account_get_params(account);
+    LinphoneAddress *identity_address = linphone_account_params_get_identity_address(accountParams);
+    
+    char *curi = linphone_address_as_string_uri_only(identity_address);
+    NSString *uri = [NSString stringWithUTF8String:curi];
+    
+    if (state == LinphoneRegistrationOk && account == defaultAccount) {
+        
+        NSLog(@"########################### lastAccountIdRegistered: %@", self.lastAccountIdRegistered);
+        if (self.lastAccountIdRegistered.length == 0 || ![self.lastAccountIdRegistered isEqualToString:  uri]) {
+            self.lastAccountIdRegistered = uri;
+            
+            NSString *username = [NSString stringWithUTF8String:linphone_address_get_username(identity_address)];
+            NSString *domain = [NSString stringWithUTF8String:linphone_address_get_domain(identity_address)];
+            const LinphoneAuthInfo *info = linphone_account_find_auth_info(account);
+            NSString *password = linphone_auth_info_get_passwd(info) ? [NSString stringWithUTF8String:linphone_auth_info_get_passwd(info)] : @"nopassword";
+
+            NSLog(@"Fetching UserConf Begin ###########################");
+            [theBcsWsService setUserInfoWithUser:username domain:domain password:password];
+
+            [theBcsWsService fetchUserConfWithCompletion:^(UserConfResponse * _Nullable userConfResponse, NSError * _Nullable error) {
+                if (error) {
+                    NSLog(@"Error fetching user configuration: %@", error.localizedDescription);
+                } else {
+                    NSLog(@"User %@ configuration fetched successfully.", userConfResponse.id);
+                    
+                    LinphoneFriendList *friendList = linphone_core_get_default_friend_list(lc) ? linphone_core_get_default_friend_list(lc) : linphone_core_create_friend_list(lc);
+                    
+                    
+                    const MSList *friends = linphone_friend_list_get_friends(friendList);
+                    int count = ms_list_size(friends);
+                    
+                    for (int i = count - 1; i >= 0; i--) {
+                        LinphoneFriend *f = ms_list_nth_data(friends, i);
+
+                        linphone_friend_list_remove_friend(friendList, f);
+                                                
+                    }
+                    
+                    if (friendList != linphone_core_get_default_friend_list(lc)) linphone_core_add_friend_list(lc, friendList);
+                    linphone_friend_list_enable_subscriptions(friendList, TRUE);
+                    
+                    for (BuddyGroup *group in userConfResponse.misc.buddies) {
+                        NSLog(@"Group Name: %@", group.name);
+
+                        for (Buddy *buddy in group.members) {
+                            NSLog(@"Buddy Display Name: %@", buddy.displayName);
+                            NSLog(@"Buddy URI: %@", buddy.uri);
+                            NSLog(@"Buddy Status: %@", buddy.buddy ? @"Buddy" : @"Not Buddy");
+                            
+                            LinphoneFriend *friend = linphone_core_create_friend_with_address(lc, buddy.uri.UTF8String);
+                            
+                            linphone_friend_set_name(friend, buddy.displayName.UTF8String);
+                            linphone_friend_enable_subscribes(friend, buddy.buddy);
+                            linphone_friend_list_add_friend(friendList, friend);
+                        }
+                    }
+                   
+                    NSLog(@"Fetching UserConf End ###########################");
+                }
+                
+            }];
+        }
+        
+    }
+    if (state == LinphoneRegistrationCleared && account == defaultAccount) {
+        if (self.lastAccountIdRegistered.length != 0) {
+            NSLog(@"[Context] Account Removing buddies");
+            self.lastAccountIdRegistered = @"";
+            //[self disableSubscriptions];
+            //[contactsManager clearFriends];
+        }
+    }
+    //dms ***********************/
+    
 
 	// Post event
 	NSDictionary *dict =
@@ -1005,6 +1095,24 @@ presenceModel:(const LinphonePresenceModel *)model {
 	 userInfo:dict];
 }
 
+- (void)onNotifyPresenceReceived:(LinphoneCore *)lc
+friend:(LinphoneFriend *)lf
+{
+    // Post event
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    [dict setObject:[NSValue valueWithPointer:lf] forKey:@"friend"];
+    [NSNotificationCenter.defaultCenter postNotificationName:kLinphoneNotifyPresenceReceived
+     object:self
+     userInfo:dict];
+}
+
+static void linphone_iphone_notify_presence_received(LinphoneCore *lc, LinphoneFriend *lf) {
+    
+    
+    [(__bridge LinphoneManager *)linphone_core_cbs_get_user_data(linphone_core_get_current_callbacks(lc)) onNotifyPresenceReceived:lc
+     friend:lf];
+}
+
 static void linphone_iphone_notify_presence_received_for_uri_or_tel(LinphoneCore *lc, LinphoneFriend *lf,
 								    const char *uri_or_tel,
 								    const LinphonePresenceModel *presence_model) {
@@ -1203,8 +1311,8 @@ static void linphone_iphone_is_composing_received(LinphoneCore *lc, LinphoneChat
 		linphone_core_enable_video_capture(theLinphoneCore, FALSE);
 	}
 
-	[self enableProxyPublish:([UIApplication sharedApplication].applicationState == UIApplicationStateActive)];
-
+	//[self enableProxyPublish:([UIApplication sharedApplication].applicationState == UIApplicationStateActive)];
+    [self enableProxyPublish:YES];
 	LOGI(@"Linphone [%s] started on [%s]", linphone_core_get_version(), [[UIDevice currentDevice].model UTF8String]);
 
 	// Post event
@@ -1433,6 +1541,7 @@ void popup_link_account_cb(LinphoneAccountCreator *creator, LinphoneAccountCreat
 	LinphoneCoreCbs *cbs = linphone_factory_create_core_cbs(factory);
 	linphone_core_cbs_set_account_registration_state_changed(cbs,linphone_iphone_registration_state);
 	linphone_core_cbs_set_notify_presence_received_for_uri_or_tel(cbs, linphone_iphone_notify_presence_received_for_uri_or_tel);
+    linphone_core_cbs_set_notify_presence_received(cbs, linphone_iphone_notify_presence_received);
 	linphone_core_cbs_set_authentication_requested(cbs, linphone_iphone_popup_password_request);
 	linphone_core_cbs_set_message_received(cbs, linphone_iphone_message_received);
 	linphone_core_cbs_set_message_received_unable_decrypt(cbs, linphone_iphone_message_received_unable_decrypt);
@@ -1494,10 +1603,16 @@ void popup_link_account_cb(LinphoneAccountCreator *creator, LinphoneAccountCreat
 	 object:nil];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(inappReady:) name:kIAPReady object:nil];
 
+    //dms Here we create the BcsWsService Object
+    theBcsWsService = [[BcsWsService alloc] initWithServer:[self lpConfigStringForKey:@"host" inSection:@"bcsws" withDefault:@""]
+                                                      port:[self lpConfigStringForKey:@"port" inSection:@"bcsws" withDefault:@"48097"]];
+    
 	/*call iterate once immediately in order to initiate background connections with sip server or remote provisioning
 	 * grab, if any */
 	[self setDnsServer]; //configure DNS if custom DNS server is set
 	[self iterate];
+   
+
 }
 
 - (void)destroyLinphoneCore {
@@ -1609,31 +1724,32 @@ static int comp_call_state_paused(const LinphoneCall *call, const void *param) {
 }
 
 - (void)enableProxyPublish:(BOOL)enabled {
-	if (linphone_core_get_global_state(LC) != LinphoneGlobalOn || !linphone_core_get_default_friend_list(LC)) {
-		LOGW(@"Not changing presence configuration because linphone core not ready yet");
-		return;
-	}
-
-	if ([self lpConfigBoolForKey:@"publish_presence"]) {
-		// set present to "tv", because "available" does not work yet
-		if (enabled) {
-			linphone_core_set_presence_model(LC, linphone_core_create_presence_model_with_activity(LC, LinphonePresenceActivityTV, NULL));
-		}
-
-		const MSList *accounts = linphone_core_get_account_list(LC);
-		while (accounts) {
-			LinphoneAccount *account = accounts->data;
-			LinphoneAccountParams *newAccountParams = linphone_account_params_clone(linphone_account_get_params(account));
-			linphone_account_params_set_publish_enabled(newAccountParams, enabled);
-			linphone_account_set_params(account, newAccountParams);
-			linphone_account_params_unref(newAccountParams);
-			accounts = accounts->next;
-		}
-		// force registration update first, then update friend list subscription
-		[self iterate];
-	}
-
-	linphone_core_enable_friend_list_subscription(LC, enabled && [LinphoneManager.instance lpConfigBoolForKey:@"use_rls_presence"]);
+    if (linphone_core_get_global_state(LC) != LinphoneGlobalOn || !linphone_core_get_default_friend_list(LC)) {
+        LOGW(@"Not changing presence configuration because linphone core not ready yet");
+        return;
+    }
+    
+    if ([self lpConfigBoolForKey:@"publish_presence"]) {
+        // set present to "tv", because "available" does not work yet
+        if (enabled) {
+            linphone_core_set_presence_model(LC, linphone_core_create_presence_model_with_activity(LC, LinphonePresenceActivityTV, NULL));
+        }
+        
+        const MSList *accounts = linphone_core_get_account_list(LC);
+        while (accounts) {
+            LinphoneAccount *account = accounts->data;
+            LinphoneAccountParams *newAccountParams = linphone_account_params_clone(linphone_account_get_params(account));
+            linphone_account_params_set_publish_enabled(newAccountParams, enabled);
+            linphone_account_set_params(account, newAccountParams);
+            linphone_account_params_unref(newAccountParams);
+            accounts = accounts->next;
+        }
+        // force registration update first, then update friend list subscription
+        [self iterate];
+    }
+    
+    linphone_core_enable_friend_list_subscription(LC, enabled && [LinphoneManager.instance lpConfigBoolForKey:@"use_rls_presence"]);
+    //linphone_core_enable_friend_list_subscription(LC, enabled);
 }
 
 - (BOOL)enterBackgroundMode {
@@ -1641,7 +1757,11 @@ static int comp_call_state_paused(const LinphoneCall *call, const void *param) {
 	BOOL shouldEnterBgMode = FALSE;
 
 	// disable presence
+  
 	[self enableProxyPublish:NO];
+    
+    
+    self.lastAccountIdRegistered = @""; //dms
 
 	// handle proxy config if any
 	if (account) {

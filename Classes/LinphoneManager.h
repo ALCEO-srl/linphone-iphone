@@ -52,6 +52,7 @@ extern NSString *const kLinphoneBluetoothAvailabilityUpdate;
 extern NSString *const kLinphoneConfiguringStateUpdate;
 extern NSString *const kLinphoneGlobalStateUpdate;
 extern NSString *const kLinphoneNotifyReceived;
+extern NSString *const kLinphoneNotifyPresenceReceived; //dms
 extern NSString *const kLinphoneNotifyPresenceReceivedForUriOrTel;
 extern NSString *const kLinphoneCallEncryptionChanged;
 extern NSString *const kLinphoneFileTransferSendUpdate;
@@ -116,6 +117,9 @@ typedef struct _LinphoneManagerSounds {
 + (NSSet *)unsupportedCodecs;
 + (NSString *)getUserAgent;
 + (int)unreadMessageCount;
+
+//dms
++ (void)retrieveBuddies;
 
 - (void)configurePushProviderForAccounts;
 - (void)playMessageSound;
@@ -222,5 +226,6 @@ typedef struct _LinphoneManagerSounds {
 @property (nonatomic, assign) BOOL contactsUpdated;
 @property UIImage *avatar;
 @property NSString *customCoreDNS;
+@property NSString *lastAccountIdRegistered; //dms
 
 @end

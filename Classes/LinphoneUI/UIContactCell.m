@@ -47,10 +47,15 @@
 		}
 
 		[NSNotificationCenter.defaultCenter addObserver:self
-											   selector:@selector(onPresenceChanged:)
+											   selector:@selector(onPresenceForUriOrTelChanged:)
 												   name:kLinphoneNotifyPresenceReceivedForUriOrTel
 												 object:nil];
-	}
+        //dms
+        [NSNotificationCenter.defaultCenter addObserver:self
+                                               selector:@selector(onPresenceChanged:)
+                                                   name:kLinphoneNotifyPresenceReceived
+                                                 object:nil];
+    }
 	return self;
 }
 
@@ -61,27 +66,133 @@
 
 #pragma mark - Notif
 
-- (void)onPresenceChanged:(NSNotification *)k {
-	LinphoneFriend *f = [[k.userInfo valueForKey:@"friend"] pointerValue];
-	// only consider event if it's about us when not in ContactsListView
-	if (_contact && (PhoneMainView.instance.currentView == ContactsListView.compositeViewDescription || _nameLabel.text == PhoneMainView.instance.currentName)) {
-		if (!_contact.friend || f != _contact.friend) {
-			return;
-		}
-		[self setContact:_contact];
-	}
+//
+- (void)onPresenceForUriOrTelChanged:(NSNotification *)k {
+    LinphoneFriend *f = [[k.userInfo valueForKey:@"friend"] pointerValue];
+    // only consider event if it's about us when not in ContactsListView
+    if (_contact && (PhoneMainView.instance.currentView == ContactsListView.compositeViewDescription || _nameLabel.text == PhoneMainView.instance.currentName)) {
+        if (!_contact.friend || f != _contact.friend) {
+            return;
+        }
+        [self setContact:_contact];
+    }
 }
 
 #pragma mark - Property Functions
 
+//dms ********************
+- (void)onPresenceChanged:(NSNotification *)k {
+    LinphoneFriend *f = [[k.userInfo valueForKey:@"friend"] pointerValue];
+    
+    NSLog(@"####################  onPresenceChanged track=1");
+    // only consider event if it's about us when not in ContactsListView
+    if (_contact && (PhoneMainView.instance.currentView == ContactsListView.compositeViewDescription || _nameLabel.text == PhoneMainView.instance.currentName)) {
+        if (!_contact.friend || f != _contact.friend) {
+            return;
+        }
+        NSLog(@"#################### onPresenceChanged track=2");
+        [self setContact:_contact];
+    }
+}
+
+
+- (NSString *) getPresenceIconAsString:(LinphonePresenceModel *) presenceModel {
+    
+    
+    //val basicStatus = pm.basicStatus
+
+    LinphonePresenceBasicStatus basicStatus = linphone_presence_model_get_basic_status(presenceModel);
+    LinphonePresenceActivity *activity = nil; //linphone_presence_model_get_activity(presenceModel);
+    
+    NSMutableSet *activityTypesSet = [NSMutableSet set];
+    
+    unsigned int count =  linphone_presence_model_get_nb_activities(presenceModel);
+    
+    for (int i = 0; i < count; i++) {
+      activity = linphone_presence_model_get_nth_activity(presenceModel, i);
+      LinphonePresenceActivityType activityType = linphone_presence_activity_get_type(activity);
+        
+      [activityTypesSet addObject:@(activityType)];
+        
+    }
+    LINPHONE_PUBLIC LinphonePresenceActivity *linphone_presence_model_get_nth_activity(const LinphonePresenceModel *model,
+                                                                                       unsigned int index);
+    
+    if (basicStatus == LinphonePresenceBasicStatusOpen) {
+        if (count == 0) {
+            NSLog(@"######### getPresenceIconAsString On-Line");
+            return @"contact_presence_open";
+        } else {
+            LinphonePresenceActivityType activityType = linphone_presence_activity_get_type(activity);
+                       
+            switch (activityType) {
+                case LinphonePresenceActivityBusy:{
+                    LinphonePresenceActivityType typeToCheck = LinphonePresenceActivityAppointment;
+                    if ([activityTypesSet containsObject:@(typeToCheck)])
+                        return @"contact_presence_closed_appointment";
+                    else
+                      return @"contact_presence_closed_busy";
+                }
+                case LinphonePresenceActivityAway:
+                    return @"contact_presence_open_away";
+                case LinphonePresenceActivityOnThePhone:
+                    return @"contact_presence_open_onthephone";
+                case LinphonePresenceActivityAppointment:{
+                    LinphonePresenceActivityType typeToCheck = LinphonePresenceActivityBusy;
+                    if ([activityTypesSet containsObject:@(typeToCheck)])
+                        return @"contact_presence_closed_appointment";
+                    else
+                        return @"contact_presence_open_appointment";
+                }
+                    
+                default:
+                    return @"contact_presence_open";
+            }
+        }
+    } else {
+        NSLog(@"######### getPresenceIconAsString Off-Line");
+        
+        if (!activity) {
+            NSLog(@"######### getPresenceIconAsString On-Line");
+            return @"contact_presence_closed";
+        } else {
+            LinphonePresenceActivityType activityType = linphone_presence_activity_get_type(activity);
+                       
+            switch (activityType) {
+                case LinphonePresenceActivityBusy:
+                    return @"contact_presence_closed_busy";
+                    
+                case LinphonePresenceActivityOther: {
+                    const char * desc = linphone_presence_activity_get_description(activity);
+                   
+                    if (strstr(desc, "out-of-office")) return @"contact_presence_open_outofoffice";
+                    else return @"contact_presence_closed";
+                }
+                 case LinphonePresenceActivityAppointment:
+                    return @"contact_presence_closed_appointment";
+                default:
+                    return @"contact_presence_closed";
+            }
+        }
+        
+    }
+}
+//dms ********************
+
 - (void)setContact:(Contact *)acontact {
 	_contact = acontact;
-	_linphoneImage.hidden = TRUE;
+	_linphoneImage.hidden = FALSE; //dms
+    
+    UIImage *image = [UIImage imageNamed:@"presence_offline"];
+    
+    _linphoneImage.image = image;
+    
 	if(_contact) {
 		[ContactDisplay setDisplayNameLabel:_nameLabel forContact:_contact];
 		_organizationLabel.text = [FastAddressBook ogrganizationForContact:_contact];
-		_linphoneImage.hidden = [LinphoneManager.instance lpConfigBoolForKey:@"hide_linphone_contacts" inSection:@"app"] ||
-			! ((_contact.friend && linphone_presence_model_get_basic_status(linphone_friend_get_presence_model(_contact.friend)) == LinphonePresenceBasicStatusOpen) || [FastAddressBook contactHasValidSipDomain:_contact]);
+        
+        const LinphonePresenceModel *presenceModel = linphone_friend_get_presence_model(_contact.friend);
+        if (presenceModel) _linphoneImage.image = [UIImage imageNamed: [self getPresenceIconAsString: presenceModel]];
 	}
 }
 
