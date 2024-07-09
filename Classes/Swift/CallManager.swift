@@ -536,12 +536,50 @@ import AVFoundation
 			return FastAddressBook.displayName(for: call.remoteAddress?.getCobject) ?? "Unknown"
 		}
 	}
-	
+    //dms ********
+    func PublishPresenceOnThePhone(core: Core) {
+    /*    if core.presenceModel?.activity?.type != PresenceActivity.Kind.OnThePhone {
+            do{
+              try core.presenceModel?.activity?.setType(newValue: PresenceActivity.Kind.OnThePhone)
+            }
+            catch {
+                Log.e("[Call] Failed to set activity OnThePhone")
+            }
+                
+        } else {*/
+            var model: PresenceModel
+            do {
+                try model = core.createPresenceModelWithActivity(acttype: PresenceActivity.Kind.OnThePhone, description: nil)
+                core.presenceModel = model
+            }
+            catch {
+                Log.e("[Call] Failed to set activity OnThePhone")
+            }
+            
+            
+        //}
+    }
+    
+    func PublishPresenceOpenState(core: Core) {
+        var model: PresenceModel
+        
+        do{
+          try model = core.createPresenceModel()
+          try model.setBasicstatus(newValue: PresenceBasicStatus.Open)
+          core.presenceModel = model
+        }
+        catch {
+            Log.e("[Call] Failed to set basic status open")
+        }
+    }
+	//dms *******
 	func onCallStateChanged(core: Core, call: Call, state cstate: Call.State, message: String) {
 		let callLog = call.callLog
 		let callId = callLog?.callId ?? ""
 		if (cstate == .PushIncomingReceived) {
-			displayIncomingCall(call: call, handle: "Calling", hasVideo: false, callId: callId, displayName: "Calling")
+            core.refreshRegisters(); //dms
+
+            displayIncomingCall(call: call, handle: "Calling", hasVideo: false, callId: callId, displayName: "Calling")
 		} else {
 			let video = (core.videoActivationPolicy?.automaticallyAccept ?? false) && (call.remoteParams?.videoEnabled ?? false)
 			
@@ -556,11 +594,23 @@ import AVFoundation
 				ConferenceViewModel.shared.configureConference(conference)
 			}
 			
+            //dms ******
+            if (cstate == .IncomingReceived) || (cstate == .OutgoingInit) || (cstate == .Connected){
+                if core.callsNb == 1 {
+                    PublishPresenceOnThePhone(core: core)
+                }
+            }
+            if (cstate == .End) || (cstate == .Released) || (cstate == .Error){
+                if core.callsNb == 0 {
+                    PublishPresenceOpenState(core: core)
+                }
+            }
+            //dms ******
 			switch cstate {
 			case .IncomingReceived:
 				let addr = call.remoteAddress
 				var displayName = incomingDisplayName(call: call)
-				
+                
 				if call.replacedCall != nil {
 					endCallKitReplacedCall = false
 					

@@ -99,8 +99,6 @@
 - (NSString *) getPresenceIconAsString:(LinphonePresenceModel *) presenceModel {
     
     
-    //val basicStatus = pm.basicStatus
-
     LinphonePresenceBasicStatus basicStatus = linphone_presence_model_get_basic_status(presenceModel);
     LinphonePresenceActivity *activity = nil; //linphone_presence_model_get_activity(presenceModel);
     

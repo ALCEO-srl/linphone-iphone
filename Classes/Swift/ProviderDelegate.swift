@@ -98,6 +98,8 @@ class ProviderDelegate: NSObject {
 		
 		let callInfo = callInfos[uuid]
 		let callId = callInfo?.callId
+        
+    
 		
 		if (ConfigManager.instance().config?.hasEntry(section: "app", key: "max_calls") == 1)  { // moved from misc to app section intentionally upon app start or remote configuration
 			if let maxCalls = ConfigManager.instance().config?.getInt(section: "app",key: "max_calls",defaultValue: 10), Core.get().callsNb > maxCalls {

@@ -1836,6 +1836,8 @@
 		8BD10EB62C2196B000027C5F /* sturn.rc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sturn.rc; sourceTree = "<group>"; };
 		8BD5416C2C1B332E00E35636 /* msgNotificationService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = msgNotificationService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BD5417A2C1B3D3800E35636 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Utils.swift; path = msgNotification/Utils.swift; sourceTree = "<group>"; };
+		8BDA03B02C3C202200EAD459 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/ContactsListView.strings; sourceTree = "<group>"; };
+		8BDA03B12C3C3D2900EAD459 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/ContactDetailsView.strings; sourceTree = "<group>"; };
 		8C1A1F7C1FA331D40064BE00 /* libsoci_sqlite3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsoci_sqlite3.a; path = "liblinphone-sdk/apple-darwin/lib/libsoci_sqlite3.a"; sourceTree = "<group>"; };
 		8C23BCB71D82AAC3005F19BB /* linphone.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = linphone.entitlements; sourceTree = "<group>"; };
 		8C2595DE1DEDCC8E007A6424 /* CallKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CallKit.framework; path = System/Library/Frameworks/CallKit.framework; sourceTree = SDKROOT; };
@@ -5843,6 +5845,7 @@
 				F0AF06F41A24BA760086C9C1 /* ar */,
 				8CBD7BBC20B6B87200E5DCC0 /* fr */,
 				6187B1C224B3271A00D580FB /* hu */,
+				8BDA03B12C3C3D2900EAD459 /* it */,
 			);
 			name = ContactDetailsView.xib;
 			sourceTree = "<group>";
@@ -5855,6 +5858,7 @@
 				F0AF06F51A24BA760086C9C1 /* ar */,
 				8CBD7BBD20B6B87300E5DCC0 /* fr */,
 				6187B1C324B3271B00D580FB /* hu */,
+				8BDA03B02C3C202200EAD459 /* it */,
 			);
 			name = ContactsListView.xib;
 			sourceTree = "<group>";
