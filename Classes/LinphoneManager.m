@@ -869,7 +869,7 @@ message:(const char *)cmessage {
                             linphone_friend_list_add_friend(friendList, friend);
                         }
                     }
-                   
+                    
                     NSLog(@"Fetching UserConf End ###########################");
                 }
                 

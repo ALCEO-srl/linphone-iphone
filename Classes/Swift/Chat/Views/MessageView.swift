@@ -57,11 +57,13 @@ class MessageView:  UIView, UITextViewDelegate {
 		
 		addSubview(pictureButton)
 		pictureButton.alignParentLeft(withMargin: side_buttons_margin).matchParentHeight().done()
-		
+        pictureButton.isHidden = true //dms
+        
 		addSubview(voiceRecordButton)
 		voiceRecordButton.toRightOf(pictureButton, withLeftMargin: -8).matchParentHeight().done()
 		voiceRecordButton.onClickAction = action3
-
+        voiceRecordButton.isHidden = true  //dms
+        
 		addSubview(ephemeralIndicator)
 		ephemeralIndicator.alignParentRight(withMargin: 4).alignParentTop(withMargin: 4).size(w: 9, h: 10).done()
 		ephemeralIndicator.isHidden = true
@@ -72,7 +74,9 @@ class MessageView:  UIView, UITextViewDelegate {
 		sendButton.onClickAction = action2
 		
 		addSubview(messageTextView)
-		messageTextView.toRightOf(voiceRecordButton, withLeftMargin: -8).toLeftOf(sendButton, withRightMargin: -8).matchParentHeight().done()
+		//dms messageTextView.toRightOf(voiceRecordButton, withLeftMargin: -8).toLeftOf(sendButton, withRightMargin: -8).matchParentHeight().done()
+        
+        messageTextView.alignParentLeft(withMargin: 8).toLeftOf(sendButton, withRightMargin: -8).matchParentHeight().done()
 
 		messageTextView.addSubview(messageWithEmojiView)
 		messageWithEmojiView.matchParentDimmensions(insetedByDx: 10).done()

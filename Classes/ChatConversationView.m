@@ -461,6 +461,7 @@ static UICompositeViewDescription *compositeDescription = nil;
 	if (isOneToOne) {
 		_messageField.editable = TRUE;
 		_pictureButton.enabled = TRUE;
+        _pictureButton.hidden = TRUE;
 		_messageView.userInteractionEnabled = TRUE;
 		if (linphone_chat_room_is_read_only(_chatRoom)) {
 			linphone_chat_room_add_participant(_chatRoom, linphone_participant_get_address(linphone_chat_room_get_me(_chatRoom)));

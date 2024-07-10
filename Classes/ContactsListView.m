@@ -170,7 +170,7 @@ static UICompositeViewDescription *compositeDescription = nil;
 	_loadingView.hidden = TRUE;
 }
 - (void)onMagicSearchMoreAvailable:(NSNotification *)k {
-	_ldapMoreResultsLabel.hidden = FALSE;
+	
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -329,7 +329,7 @@ static UICompositeViewDescription *compositeDescription = nil;
 		if (searchText.length == 0) {
 			[LinphoneManager.instance setContactsUpdated:TRUE];
 		}
-		_ldapMoreResultsLabel.hidden = TRUE;
+	
 		[tableController loadDataWithFilter:searchText];
 	}
 }

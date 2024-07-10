@@ -175,24 +175,24 @@
         
     }
 }
-//dms ********************
 
 - (void)setContact:(Contact *)acontact {
 	_contact = acontact;
-	_linphoneImage.hidden = FALSE; //dms
-    
-    UIImage *image = [UIImage imageNamed:@"presence_offline"];
-    
-    _linphoneImage.image = image;
+	_linphoneImage.hidden = TRUE;
     
 	if(_contact) {
+        _linphoneImage.hidden = FALSE;
+        UIImage *image = [UIImage imageNamed:@"presence_offline"];
+        _linphoneImage.image = image;
+                
 		[ContactDisplay setDisplayNameLabel:_nameLabel forContact:_contact];
-		_organizationLabel.text = [FastAddressBook ogrganizationForContact:_contact];
+		//_organizationLabel.text = [FastAddressBook ogrganizationForContact:_contact];
         
         const LinphonePresenceModel *presenceModel = linphone_friend_get_presence_model(_contact.friend);
-        if (presenceModel) _linphoneImage.image = [UIImage imageNamed: [self getPresenceIconAsString: presenceModel]];
+        if (presenceModel) _linphoneImage.image = [UIImage imageNamed: [self getPresenceIconAsString: presenceModel]];//dms
 	}
 }
+//dms ********************
 
 #pragma mark -
 

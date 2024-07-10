@@ -211,7 +211,7 @@ class ChatConversationViewSwift: BackActionsNavigationView, PHPickerViewControll
 			self.loading.stopRotation()
 			
 			self.contentMessageView.messageView.sendButton.isEnabled = true
-			self.contentMessageView.messageView.pictureButton.isEnabled = true
+            self.contentMessageView.messageView.pictureButton.isHidden = true //dms
 		}
 		
 		ChatConversationViewModel.sharedModel.shareFileName.observe { name in
@@ -363,7 +363,7 @@ class ChatConversationViewSwift: BackActionsNavigationView, PHPickerViewControll
 		} else {
 			self.contentMessageView.messageView.sendButton.isEnabled = true
 		}
-		self.contentMessageView.messageView.pictureButton.isEnabled = true
+		self.contentMessageView.messageView.pictureButton.isHidden = true//dms
 		
 		contentMessageView.isComposingTextView.text = ""
 	}
@@ -524,7 +524,7 @@ class ChatConversationViewSwift: BackActionsNavigationView, PHPickerViewControll
 			}
 			menu.dataSource.append(VoipTexts.dropdown_menu_chat_conversation_group_infos)
 		}else{
-			var contact: Contact? = nil
+			/* dmsvar contact: Contact? = nil
 			let firstParticipant = ChatConversationViewModel.sharedModel.chatRoom?.participants.first
 			let addr = (firstParticipant != nil) ? linphone_participant_get_address(firstParticipant?.getCobject) : linphone_chat_room_get_peer_address(cChatRoom)
 			
@@ -534,7 +534,7 @@ class ChatConversationViewSwift: BackActionsNavigationView, PHPickerViewControll
 				menu.dataSource.append(VoipTexts.dropdown_menu_chat_conversation_add_to_contact)
             } else if (contact != nil) {
 				menu.dataSource.append(VoipTexts.dropdown_menu_chat_conversation_go_to_contact)
-			}
+			} */
 		}
 		if(secureLevel){
 			menu.dataSource.append(VoipTexts.dropdown_menu_chat_conversation_conversation_device)
@@ -1356,6 +1356,8 @@ class ChatConversationViewSwift: BackActionsNavigationView, PHPickerViewControll
 			
 			self.contentMessageView.messageView.sendButton.isEnabled = false
 			self.contentMessageView.messageView.pictureButton.isEnabled = false
+            self.contentMessageView.messageView.pictureButton.isHidden = false
+             
 			
 			ChatConversationViewModel.sharedModel.mediaCount = ChatConversationViewModel.sharedModel.mediaCollectionView.count
 			ChatConversationViewModel.sharedModel.newMediaCount = sequenceCount
