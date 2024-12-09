@@ -52,7 +52,9 @@ class NotificationService: UNNotificationServiceExtension {
 	}
 
     override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
-			self.contentHandler = contentHandler
+            NSLog("[msgNotificationService] 1")
+            self.contentHandler = contentHandler
+            NSLog("[msgNotificationService] 2")
 			bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
 			NSLog("[msgNotificationService] start msgNotificationService extension")
 
@@ -62,33 +64,73 @@ class NotificationService: UNNotificationServiceExtension {
 			
 			if let bestAttemptContent = bestAttemptContent {
 				
-
+                NSLog("[Creating core...]")
                 createCore()
+                NSLog("[Created core...]")
+                
+                //dms ******  Registration fix
+                
+                
+                if let userDefaults = UserDefaults(suiteName: APP_GROUP_ID) {
+                    let appActive = userDefaults.bool(forKey: "appactive")
+                    
+                    if appActive {
+                        let content = UNMutableNotificationContent()
+                        content.title = NSLocalizedString("Message received", comment: "")
+                        content.body = NSLocalizedString("IM_MSG", comment: "")
+                        content.userInfo = ["action": "register"]
+
+                        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+                        let request = UNNotificationRequest(identifier: "local_notification", content: content, trigger: trigger)
+
+                        UNUserNotificationCenter.current().add(request) { (error) in
+                            if let error = error {
+                                NSLog("An error occured while sending the register action notify: \(error.localizedDescription)")
+                            }
+                        }
+                    } else {
+                        NSLog("L'app è attualmente in background.")
+                    }
+                } else {
+                    NSLog("Errore nell'inizializzare UserDefaults con l'App Group.")
+                }
+                
+
+                //dms  *****
                 
 			
 				if (!(lc!.config?.getBool(section: "app", key: "disable_chat_feature", defaultValue: true))!){
+                    
+                    NSLog("msgNotificationService 3")
 					NotificationService.log.message(message: "received push payload : \(bestAttemptContent.userInfo.debugDescription)")
 
-					
+                    NSLog("msgNotificationService 4")
 					let defaults = UserDefaults.init(suiteName: APP_GROUP_ID)
+                    
+                    NSLog("msgNotificationService 5")
 					if let chatroomsPushStatus = defaults?.dictionary(forKey: "chatroomsPushStatus") {
-						let aps = bestAttemptContent.userInfo["aps"] as? NSDictionary
+                        NSLog("msgNotificationService 6")
+                        let aps = bestAttemptContent.userInfo["aps"] as? NSDictionary
 						let alert = aps?["alert"] as? NSDictionary
 						let fromAddresses = alert?["loc-args"] as? [String]
 						
 						if let from = fromAddresses?.first {
 							if ((chatroomsPushStatus[from] as? String) == "disabled") {
+                                NSLog("msgNotificationService 7")
 								NotificationService.log.message(message: "message comes from a muted chatroom, ignore it")
 								contentHandler(UNNotificationContent())
 							}
 						}
 					}
-					
+                    NSLog("msgNotificationService 8")
 					if let chatRoomInviteAddr = bestAttemptContent.userInfo["chat-room-addr"] as? String, !chatRoomInviteAddr.isEmpty {
+                        NSLog("msgNotificationService 9")
 						NotificationService.log.message(message: "fetch chat room for invite, addr: \(chatRoomInviteAddr)")
 						let chatRoom = lc!.getNewChatRoomFromConfAddr(chatRoomAddr: chatRoomInviteAddr)
 
 						if let chatRoom = chatRoom {
+                            
+                            NSLog("msgNotificationService 10")
 							stopCore()
 							NotificationService.log.message(message: "chat room invite received")
 							bestAttemptContent.title = NSLocalizedString("GC_MSG", comment: "")
@@ -99,20 +141,24 @@ class NotificationService: UNNotificationServiceExtension {
 									bestAttemptContent.body = chatRoom.peerAddress!.username!
 								}
 							} else {
+                                NSLog("msgNotificationService 11")
 								bestAttemptContent.body = chatRoom.subject!
 							}
-
+                            NSLog("msgNotificationService 12")
 							bestAttemptContent.sound = UNNotificationSound(named: UNNotificationSoundName("msg.caf")) // TODO : temporary fix, to be removed after flexisip release
 							contentHandler(bestAttemptContent)
 							return
 						}
 					} else if let callId = bestAttemptContent.userInfo["call-id"] as? String {
-						NotificationService.log.message(message: "fetch msg for callid ["+callId+"]")
+						
+                        NSLog("msgNotificationService 13")
+                        NotificationService.log.message(message: "fetch msg for callid ["+callId+"]")
                      
                         
 						let message = lc!.getNewMessageFromCallid(callId: callId)
 
 						if let message = message {
+                            NSLog("msgNotificationService 14")
 							let msgData = parseMessage(message: message)
 
 							// Extension only upates app's badge when main shared core is Off = extension's core is On.
@@ -144,9 +190,17 @@ class NotificationService: UNNotificationServiceExtension {
 							//}else {
 							//	contentHandler(UNNotificationContent())
 							//}
+                            
+                            // Esegui l'attività in background
+                             //DispatchQueue.global().async {
+                             //  sleep(5)
+                            //   contentHandler(bestAttemptContent)
+                             //}
+                            
 							
 							return
 						} else {
+                            NSLog("msgNotificationService 15")
 							NotificationService.log.message(message: "Message not found for callid ["+callId+"]")
 						}
 					}

@@ -546,7 +546,19 @@
 
 - (void) userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
 	// If an app extension launch a user notif while app is in fg, it is catch by the app
-	NSString *category = [[[notification request] content] categoryIdentifier];
+	
+    //dms fix
+    NSDictionary *userInfo = notification.request.content.userInfo;
+    NSString *action = userInfo[@"action"];
+    
+    if ([action isEqualToString:@"register"]) {
+        // Esegui l'azione desiderata
+        NSLog(@"register action received, refreshing register");
+        linphone_core_refresh_registers(LC);
+        return;
+    }
+    //dms
+    NSString *category = [[[notification request] content] categoryIdentifier];
 	if (category && [category isEqualToString:@"app_active"]) {
 		return;
 	}
@@ -570,6 +582,8 @@
 	
 	completionHandler(UNNotificationPresentationOptionAlert);
 }
+
+
 
 -(void) application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 	LOGD(@"didReceiveRemoteNotification -- backgroundPush");

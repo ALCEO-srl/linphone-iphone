@@ -29,7 +29,7 @@ import Foundation
     }
 
     private var baseUrl: URL {
-        return URL(string: "https://\(server):\(port)/")!
+        return URL(string: "https://\(server):\(port)/\(domain)/")!
     }
 
     private func getUrl(for endpoint: String) -> URL {

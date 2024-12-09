@@ -235,9 +235,6 @@ struct codec_name_pref_table codec_pref_table[] = {{"speex", 8000, "speex_8k_pre
 	return dir == NSLocaleLanguageDirectionRightToLeft;
 }
 
-+ (void)retrieveBuddies {
-    BcsWsService *service = [[BcsWsService alloc] initWithServer:@"bcsws.alceo.com" port:@"8080"];
-}
 
 
 #pragma mark - Lifecycle Functions
@@ -1604,8 +1601,8 @@ void popup_link_account_cb(LinphoneAccountCreator *creator, LinphoneAccountCreat
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(inappReady:) name:kIAPReady object:nil];
 
     //dms Here we create the BcsWsService Object
-    theBcsWsService = [[BcsWsService alloc] initWithServer:[self lpConfigStringForKey:@"host" inSection:@"bcsws" withDefault:@""]
-                                                      port:[self lpConfigStringForKey:@"port" inSection:@"bcsws" withDefault:@"48097"]];
+    theBcsWsService = [[BcsWsService alloc] initWithServer:[self lpConfigStringForKey:@"host" inSection:@"bcsws" withDefault:@"bcsgate.com"]
+                                                      port:[self lpConfigStringForKey:@"port" inSection:@"bcsws" withDefault:@"443"]];
     
 	/*call iterate once immediately in order to initiate background connections with sip server or remote provisioning
 	 * grab, if any */

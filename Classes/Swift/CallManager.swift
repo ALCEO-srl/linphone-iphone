@@ -579,7 +579,7 @@ import AVFoundation
 		if (cstate == .PushIncomingReceived) {
             core.refreshRegisters(); //dms
 
-            displayIncomingCall(call: call, handle: "Calling", hasVideo: false, callId: callId, displayName: "Calling")
+            displayIncomingCall(call: call, handle: "Calling", hasVideo: false, callId: callId, displayName: NSLocalizedString("Incoming call", comment: ""))
 		} else {
 			let video = (core.videoActivationPolicy?.automaticallyAccept ?? false) && (call.remoteParams?.videoEnabled ?? false)
 			

@@ -10,7 +10,7 @@ turn_preference=1
 preview_preference=0
 random_port_preference=1
 start_at_boot_preference=1
-stun_preference=sturn.semki.it
+stun_preference=sturn.bcsgate.com
 voiceproc_preference=1
 repeat_call_notification=1
 display_phone_only=0
@@ -66,7 +66,7 @@ edge_bw=10
 edge_ping_time=10
 firewall_policy=ice
 mtu=1300
-stun_server=sturn.semki.it
+stun_server=sturn.bcsgate.com
 friendlist_subscription_enabled=1
 
 [rtp]

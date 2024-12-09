@@ -1697,10 +1697,13 @@ UIColor *previousColor = (UIColor*)[sender backgroundColor]; \
         //linphone_address_unref(transportAddr);
         linphone_account_params_enable_outbound_proxy(accountParams, TRUE);
         linphone_account_params_set_lime_server_url(accountParams, "");
-		//dms ******
-        
-		linphone_account_params_set_publish_enabled(accountParams, FALSE);
+		       
+		
 		linphone_account_params_set_register_enabled(accountParams, TRUE);
+        linphone_account_params_set_expires(accountParams, 31536000);
+        linphone_account_params_set_publish_enabled(accountParams, TRUE);
+        linphone_account_params_set_publish_expires(accountParams, 600);
+        //dms ******
 		
 		LinphoneAuthInfo *info =
 			linphone_auth_info_new(linphone_address_get_username(addr), // username
@@ -1746,9 +1749,9 @@ UIColor *previousColor = (UIColor*)[sender backgroundColor]; \
         info = linphone_auth_info_new(turnusername.UTF8String, // username
                                       turnusername.UTF8String,                                // user id
                                       turnuserpassword.UTF8String,                        // passwd
-                                    NULL,                                // ha1
-                                    linphone_address_get_domain(addr),   // realm - assumed to be domain
-                                    linphone_address_get_domain(addr)    // domain
+                                      NULL,                                // ha1
+                                      turnrealm.UTF8String,  //realm
+                                      linphone_address_get_domain(addr)    // domain
                                     );
          linphone_core_add_auth_info(LC, info);
          

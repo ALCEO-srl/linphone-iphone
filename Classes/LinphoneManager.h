@@ -118,8 +118,6 @@ typedef struct _LinphoneManagerSounds {
 + (NSString *)getUserAgent;
 + (int)unreadMessageCount;
 
-//dms
-+ (void)retrieveBuddies;
 
 - (void)configurePushProviderForAccounts;
 - (void)playMessageSound;
