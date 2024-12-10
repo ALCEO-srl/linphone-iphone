@@ -1296,7 +1296,7 @@ void core_log_collection_upload_state_changed(LinphoneCore *core, LinphoneCoreLo
 		MFMailComposeViewController *picker = [[MFMailComposeViewController alloc] init];
 		picker.mailComposeDelegate = self;
 		
-		[picker setSubject:@"Linphone Logs"];
+		[picker setSubject:@"BcsPhone Logs"];
 		
 		[picker setToRecipients:[NSArray
 									arrayWithObjects:[LinphoneManager.instance lpConfigStringForKey:@"debug_popup_email"
