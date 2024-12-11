@@ -100,7 +100,7 @@
     
     
     LinphonePresenceBasicStatus basicStatus = linphone_presence_model_get_basic_status(presenceModel);
-    LinphonePresenceActivity *activity = nil; //linphone_presence_model_get_activity(presenceModel);
+    LinphonePresenceActivity *activity = nil;
     
     NSMutableSet *activityTypesSet = [NSMutableSet set];
     
@@ -113,8 +113,6 @@
       [activityTypesSet addObject:@(activityType)];
         
     }
-    LINPHONE_PUBLIC LinphonePresenceActivity *linphone_presence_model_get_nth_activity(const LinphonePresenceModel *model,
-                                                                                       unsigned int index);
     
     if (basicStatus == LinphonePresenceBasicStatusOpen) {
         if (count == 0) {
@@ -182,14 +180,17 @@
     
 	if(_contact) {
         _linphoneImage.hidden = FALSE;
-        UIImage *image = [UIImage imageNamed:@"presence_offline"];
+        UIImage *image = [UIImage imageNamed:@"contact_presence_notabuddy"];
         _linphoneImage.image = image;
                 
 		[ContactDisplay setDisplayNameLabel:_nameLabel forContact:_contact];
 		//_organizationLabel.text = [FastAddressBook ogrganizationForContact:_contact];
         
-        const LinphonePresenceModel *presenceModel = linphone_friend_get_presence_model(_contact.friend);
-        if (presenceModel) _linphoneImage.image = [UIImage imageNamed: [self getPresenceIconAsString: presenceModel]];//dms
+        if (linphone_friend_subscribes_enabled(_contact.friend)) {
+          NSLog(@"######### Presence enabled, evaluating contact image");
+          const LinphonePresenceModel *presenceModel = linphone_friend_get_presence_model(_contact.friend);
+          if (presenceModel) _linphoneImage.image = [UIImage imageNamed: [self getPresenceIconAsString: presenceModel]];//dms
+        }
 	}
 }
 //dms ********************
