@@ -1,0 +1,19 @@
+/* 
+  InfoPlist.strings
+  bcsphone
+
+  Created by alceo on 11/12/24.
+  
+*/
+
+NSMicrophoneUsageDescription = "Usa il microfono per fare chiamate audio";
+NSBluetoothPeripheralUsageDescription = "Utilizza il tuo auricolare Bluetooth";
+NSCalendarsUsageDescription = "Aggiungi inviti alle conferenze al calendario";
+NSCameraUsageDescription = "Condividi foto con i tuoi amici e personalizza gli avatar";
+NSContactsUsageDescription = "Effettua chiamate con i tuoi amici";
+NSLocalNetworkUsageDescription = "Trasmetti audio e video attraverso la rete locale";
+NSLocationWhenInUseUsageDescription = "BcsPhone non utilizzerà, memorizzerà o comunicherà la tua posizione. L'autorizzazione ci consente di rilevare i cambiamenti della connessione Wi-Fi";
+NSPhotoLibraryAddUsageDescription = "Aggiungi file trasferiti alla tua libreria";
+NSPhotoLibraryUsageDescription = "Condividi foto con i tuoi amici e personalizza gli avatar";
+NSVoIPUsageDescription = "Effettua chiamate audio/video";
+
