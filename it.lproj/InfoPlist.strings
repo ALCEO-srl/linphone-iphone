@@ -6,10 +6,10 @@
   
 */
 
-NSMicrophoneUsageDescription = "Usa il microfono per fare chiamate audio";
+NSMicrophoneUsageDescription = "Usa il microfono per effettuare chiamate audio";
 NSBluetoothPeripheralUsageDescription = "Utilizza il tuo auricolare Bluetooth";
 NSCalendarsUsageDescription = "Aggiungi inviti alle conferenze al calendario";
-NSCameraUsageDescription = "Condividi foto con i tuoi amici e personalizza gli avatar";
+NSCameraUsageDescription = "Usa la camera per effettuare chiamate video";
 NSContactsUsageDescription = "Effettua chiamate con i tuoi amici";
 NSLocalNetworkUsageDescription = "Trasmetti audio e video attraverso la rete locale";
 NSLocationWhenInUseUsageDescription = "BcsPhone non utilizzerà, memorizzerà o comunicherà la tua posizione. L'autorizzazione ci consente di rilevare i cambiamenti della connessione Wi-Fi";
