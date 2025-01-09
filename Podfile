@@ -26,9 +26,9 @@ target 'bcsphone' do
 
   # Pods for linphone
 	pod 'SVProgressHUD'
-	pod 'SnapKit', '~> 5.6.0'
+	pod 'SnapKit', '~> 5.7'
 	pod 'DropDown'
-	pod 'IQKeyboardManager'
+	pod 'IQKeyboardManager', '~> 6.0'
 	pod 'SwipeCellKit'
 		#License: https://github.com/SwipeCellKit/SwipeCellKit/blob/develop/LICENSE
 	pod 'EmojiPicker', :git => 'https://github.com/htmlprogrammist/EmojiPicker'

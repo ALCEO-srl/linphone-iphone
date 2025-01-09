@@ -95,23 +95,25 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Use your BT headset</string>
+	<string>This app requires access to Bluetooth to connect to your Bluetooth headset, including the microphone and headphones, and allow you to use it with the app.</string>
+	<key>NSBluetoothAlwaysUsage</key>
+	<string>This app requires access to Bluetooth to connect to your Bluetooth headset, including the microphone and headphones, and allow you to use it with the app.</string>
 	<key>NSCalendarsUsageDescription</key>
-	<string>Add Conference invitations to calendar</string>
+	<string>This app requires access to your calendar to add audio-video conference invitations as reminders.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Share photos with your friends and customize avatars</string>
+	<string>This app requires access to your camera to capture your image during video calls and transmit it to the people you call.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>Make calls with your friends</string>
+	<string>This app requires access to your contacts to allow you to easily call the contacts in your address book directly from the app.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Stream audio and video through the local network</string>
+	<string>This app requires access to your local network to send audio and video during calls to devices on the same network.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>BcsPhone will not use, store or communicate your location. The authorization allows us to detect Wifi connection changes</string>
+	<string>This app will not use, store or communicate your location. The authorization allows us to detect Wifi connection changes</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Use microphone to make audio calls</string>
+	<string>This app requires access to your microphone to capture your voice during calls and transmit it to the people you call.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Add tranfered files to your library</string>
+	<string>This app requires access to your photo library to allow you to save photos received as attachments in instant messages to your library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Share photos with your friends and customize avatars</string>
+	<string>This app requires access to your photo library to allow you to select and share your photos as attachments in instant messages.</string>
 	<key>NSUbiquitousContainers</key>
 	<dict>
 		<key>iCloud.org.linphone.phone</key>
@@ -125,7 +127,7 @@
 		</dict>
 	</dict>
 	<key>NSVoIPUsageDescription</key>
-	<string>Make audio/video calls</string>
+	<string>This app requires access to VoIP functionality to allow you to make audio and video calls over the network.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Roboto-Regular.ttf</string>

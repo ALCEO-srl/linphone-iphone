@@ -43,6 +43,7 @@ static UICompositeViewDescription *compositeDescription = nil;
 	return self.class.compositeViewDescription;
 }
 
+
 #pragma mark - ViewController Functions
 
 - (void)viewDidLoad {
@@ -59,6 +60,12 @@ static UICompositeViewDescription *compositeDescription = nil;
 	tapGestureRecognizer.numberOfTapsRequired = 1;
 	[_licenceLabel addGestureRecognizer:tapGestureRecognizer];
 	_licenceLabel.userInteractionEnabled = YES;
+    
+    UITapGestureRecognizer *tapGestureRecognizerPolicy =
+        [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onPolicyTap)];
+    tapGestureRecognizerPolicy.numberOfTapsRequired = 1;
+    [_policyLabel addGestureRecognizer:tapGestureRecognizerPolicy];
+    _policyLabel.userInteractionEnabled = YES;
 
 }
 
@@ -78,6 +85,13 @@ static UICompositeViewDescription *compositeDescription = nil;
 	if (![UIApplication.sharedApplication openURL:[NSURL URLWithString:url]]) {
 		LOGE(@"Failed to open %@, invalid URL", url);
 	}
+}
+
+- (IBAction)onPolicyTap{
+    NSString *url = @"https://www.alceo.com/privacy";
+    if (![UIApplication.sharedApplication openURL:[NSURL URLWithString:url]]) {
+        LOGE(@"Failed to open %@, invalid URL", url);
+    }
 }
 
 

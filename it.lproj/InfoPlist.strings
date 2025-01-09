@@ -6,14 +6,15 @@
   
 */
 
-NSMicrophoneUsageDescription = "Usa il microfono per effettuare chiamate audio";
-NSBluetoothPeripheralUsageDescription = "Utilizza il tuo auricolare Bluetooth";
-NSCalendarsUsageDescription = "Aggiungi inviti alle conferenze al calendario";
-NSCameraUsageDescription = "Usa la camera per effettuare chiamate video";
-NSContactsUsageDescription = "Effettua chiamate con i tuoi amici";
-NSLocalNetworkUsageDescription = "Trasmetti audio e video attraverso la rete locale";
-NSLocationWhenInUseUsageDescription = "BcsPhone non utilizzerà, memorizzerà o comunicherà la tua posizione. L'autorizzazione ci consente di rilevare i cambiamenti della connessione Wi-Fi";
+NSMicrophoneUsageDescription = "Questa app richiede l'accesso al microfono per catturare la tua voce durante le chiamate e trasmetterla alle persone che chiamerai.";
+NSBluetoothPeripheralUsageDescription = "Questa app richiede l'accesso al Bluetooth per connettersi al tuo headset Bluetooth, inclusi microfono e cuffie, e permetterti di utilizzarlo con l'app.";
+NSBluetoothAlwaysUsage = "Questa app richiede l'accesso al Bluetooth per connettersi al tuo headset Bluetooth, inclusi microfono e cuffie, e permetterti di utilizzarlo con l'app.";
+NSCalendarsUsageDescription = "Questa app richiede l'accesso al calendario per aggiungere come promemoria gli inviti alle conferenze audio-video.";
+NSCameraUsageDescription = "Questa app richiede l'accesso alla fotocamera per catturare la tua immagine durante le video chiamate e trasmetterla alle persone che chiamerai.";
+NSContactsUsageDescription = "Questa app richiede l'accesso ai contatti per consentirti di chiamare facilmente i contatti presenti nella tua rubrica direttamente dall'app.";
+NSLocalNetworkUsageDescription = "Questa app richiede l'accesso alla rete locale per inviare audio e video durante le chiamate verso dispositivi nella stessa rete.";
+NSLocationWhenInUseUsageDescription = "Questa app non utilizzerà, memorizzerà o comunicherà la tua posizione. L'autorizzazione ci consente di rilevare i cambiamenti della connessione Wi-Fi";
 NSPhotoLibraryAddUsageDescription = "Aggiungi file trasferiti alla tua libreria";
-NSPhotoLibraryUsageDescription = "Condividi foto con i tuoi amici e personalizza gli avatar";
-NSVoIPUsageDescription = "Effettua chiamate audio/video";
+NSPhotoLibraryUsageDescription = "Questa app richiede l'accesso alla libreria foto per permetterti di selezionare e condividere le tue foto come allegati nei messaggi istantanei.";
+NSVoIPUsageDescription = "Questa app richiede l'accesso alla libreria foto per permetterti di salvare le foto ricevute come allegati nei messaggi istantanei nella tua libreria.";
 
