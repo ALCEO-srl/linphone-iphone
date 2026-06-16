@@ -409,17 +409,7 @@ class ChatConversationViewModel {
 			if PHPhotoLibrary.authorizationStatus() == .authorized {
 				block!()
 			} else {
-				PHPhotoLibrary.requestAuthorization({ status in
-					DispatchQueue.main.async(execute: {
-						if PHPhotoLibrary.authorizationStatus() == .authorized {
-							block!()
-						} else {
-							let alert = UIAlertController(title: NSLocalizedString("Photo's permission", comment: ""), message: NSLocalizedString("Photo not authorized", comment: ""), preferredStyle: .alert)
-							alert.addAction(UIAlertAction(title: NSLocalizedString("Continue", comment: ""), style: .default))
-							PhoneMainView.instance()!.present(alert, animated: true)
-						}
-					})
-				})
+				// Galleria disabilitata: nessuna richiesta del permesso libreria foto.
 			}
 		}
 	}

@@ -110,10 +110,6 @@
 	<string>This app will not use, store or communicate your location. The authorization allows us to detect Wifi connection changes</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app requires access to your microphone to capture your voice during calls and transmit it to the people you call.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>This app requires access to your photo library to allow you to save photos received as attachments in instant messages to your library.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app requires access to your photo library to allow you to select and share your photos as attachments in instant messages.</string>
 	<key>NSUbiquitousContainers</key>
 	<dict>
 		<key>iCloud.org.linphone.phone</key>

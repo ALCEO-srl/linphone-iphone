@@ -100,11 +100,9 @@
 }
 
 - (IBAction)onAvatarClick:(id)sender {
-	// hide ourself because we are on top of image picker
-	if (!IPAD) {
-		[PhoneMainView.instance.mainViewController hideSideMenu:YES];
-	}
-	[ImagePickerView SelectImageFromDevice:self atPosition:_avatarImage inView:self.view withDocumentMenuDelegate:nil];
+	// Cambio avatar dalla galleria disabilitato: il tap sull'avatar apre le impostazioni
+	// account, come il tap sul nome (onHeaderClick).
+	[PhoneMainView.instance changeCurrentView:SettingsView.compositeViewDescription];
 }
 
 - (IBAction)onBackgroundClicked:(id)sender {

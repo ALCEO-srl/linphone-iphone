@@ -330,7 +330,9 @@ static UICompositeViewDescription *compositeDescription = nil;
 		  [PhoneMainView.instance changeCurrentView:view.compositeViewDescription];
 	  }
 	};
-    if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized) {
+    // Galleria non più usata: mostriamo sempre il selettore (fotocamera/documento non
+    // necessitano del permesso libreria foto), senza più gating sull'autorizzazione foto.
+    if (YES) {
         DTActionSheet *sheet = [[DTActionSheet alloc] initWithTitle:NSLocalizedString(@"Select the source", nil)];
         if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
             [sheet addButtonWithTitle:NSLocalizedString(@"Camera", nil)
@@ -342,13 +344,8 @@ static UICompositeViewDescription *compositeDescription = nil;
                                     block(UIImagePickerControllerSourceTypeCamera);
                                 }];
         }
-        if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
-            [sheet addButtonWithTitle:NSLocalizedString(@"Photo library", nil)
-                                block:^() {
-                                    block(UIImagePickerControllerSourceTypePhotoLibrary);
-                                }];
-        }
-		
+        // Opzione "Libreria foto" rimossa: niente accesso in lettura alla galleria.
+
 		if (documentMenuDelegate) {
 			[sheet addButtonWithTitle:NSLocalizedString(@"Document",nil) block:^(){
 				[self pickDocumentForDelegate:documentMenuDelegate];
@@ -358,6 +355,8 @@ static UICompositeViewDescription *compositeDescription = nil;
         
         [sheet showInView:PhoneMainView.instance.view];
     } else {
+        // Galleria disabilitata: nessuna richiesta del permesso libreria foto.
+        /*
         [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized) {
@@ -391,6 +390,7 @@ static UICompositeViewDescription *compositeDescription = nil;
                 }
             });
         }];
+        */
     }
 }
 

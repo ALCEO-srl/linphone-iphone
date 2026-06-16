@@ -593,9 +593,13 @@ static UICompositeViewDescription *compositeDescription = nil;
 
 - (IBAction)onAvatarClick:(id)sender {
 	[LinphoneUtils findAndResignFirstResponder:self.view];
+	// Modifica avatar disabilitata: la selezione immagine dalla galleria non è disponibile.
+	// (In futuro l'avatar potrà essere gestito tramite l'endpoint BCS dedicato.)
+	/*
 	if (_tableController.isEditing) {
 		[ImagePickerView SelectImageFromDevice:self atPosition:_avatarImage inView:self.view withDocumentMenuDelegate:nil];
 	}
+	*/
 }
 
 - (void)dismissKeyboards {

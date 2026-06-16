@@ -317,6 +317,8 @@
 	
 	
 
+	// Permesso libreria foto disabilitato: non richiediamo l'accesso alla galleria all'avvio.
+	/*
 	if ([PHPhotoLibrary authorizationStatus] != PHAuthorizationStatusAuthorized) {
 		[PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
 			dispatch_async(dispatch_get_main_queue(), ^{
@@ -326,6 +328,7 @@
 			});
 		}];
 	}
+	*/
 
 	BOOL background_mode = [instance lpConfigBoolForKey:@"backgroundmode_preference"];
 	BOOL start_at_boot = [instance lpConfigBoolForKey:@"start_at_boot_preference"];
