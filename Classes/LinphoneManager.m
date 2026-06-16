@@ -1603,6 +1603,7 @@ void popup_link_account_cb(LinphoneAccountCreator *creator, LinphoneAccountCreat
     //dms Here we create the BcsWsService Object
     theBcsWsService = [[BcsWsService alloc] initWithServer:[self lpConfigStringForKey:@"host" inSection:@"bcsws" withDefault:@"bcsgate.com"]
                                                       port:[self lpConfigStringForKey:@"port" inSection:@"bcsws" withDefault:@"443"]];
+    self.bcsWsService = theBcsWsService;
     
 	/*call iterate once immediately in order to initiate background connections with sip server or remote provisioning
 	 * grab, if any */

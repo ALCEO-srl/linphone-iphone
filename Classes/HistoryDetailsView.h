@@ -28,6 +28,7 @@
 @interface HistoryDetailsView : TPMultiLayoutViewController <UICompositeViewDelegate> {
   @private
 	LinphoneCallLog *callLog;
+	LinphoneCallLog *directCallLog;
 }
 @property(weak, nonatomic) IBOutlet UIButton *backButton;
 @property(weak, nonatomic) IBOutlet UILabel *contactLabel;
@@ -50,5 +51,8 @@
 - (IBAction)onChatClick:(id)event;
 - (IBAction)onEncryptedChatClick:(id)sender;
 - (void)setCallLogId:(NSString *)acallLogId;
+// Imposta direttamente il LinphoneCallLog (usato per i log sintetici BCS, che non
+// hanno call_id e quindi non sono recuperabili dal registro locale del core).
+- (void)setCallLog:(LinphoneCallLog *)log;
 
 @end

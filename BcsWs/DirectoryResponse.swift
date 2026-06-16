@@ -91,4 +91,65 @@ struct BcsDirectoryResponse: Codable {
         if !Name.isEmpty || !Surname.isEmpty { return "\(Name) \(Surname)".trimmingCharacters(in: .whitespaces) }
         return Uri
     }
+
+    /// Ricerca libera su tutti i campi, case-insensitive (mirror del filtro Android).
+    func matches(_ query: String) -> Bool {
+        let fields = [Id, Uri, Name, Surname, DisplayName, Profession, Company, EmailAddress,
+                      MobilePhone, LandlinePhone, FaxPhone, Title, Address, Branch, Office,
+                      Manager, Assistant, Attr1, Attr2, Attr3, Attr4, Attr5, Attr6, Attr7,
+                      Attr8, Attr9, Attr10, AvatarImageUrl]
+        return fields.contains { $0.range(of: query, options: .caseInsensitive) != nil }
+    }
+}
+
+// MARK: - Manager rubrica (mirror di CoreContext.fetchDirectory)
+
+@objc class BcsDirectoryManager: NSObject {
+
+    @objc static let shared = BcsDirectoryManager()
+
+    private var allItems: [BcsDirectoryItem] = []
+    private var loaded = false
+
+    private var service: BcsWsService? {
+        return LinphoneManager.instance().bcsWsService
+    }
+
+    /// Scarica l'intera rubrica una sola volta (come Android), poi si filtra lato client.
+    /// Con force=true ricarica comunque dal server.
+    @objc func loadDirectory(force: Bool, completion: @escaping (NSError?) -> Void) {
+        if loaded && !force {
+            DispatchQueue.main.async { completion(nil) }
+            return
+        }
+        guard let service = service else {
+            DispatchQueue.main.async {
+                completion(NSError(domain: "BcsWs", code: -1, userInfo: [NSLocalizedDescriptionKey: "Servizio non disponibile"]))
+            }
+            return
+        }
+        service.fetchDirectory(filter: "") { [weak self] response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    NSLog("[BcsDirectory] loadDirectory error: \(error.localizedDescription)")
+                    completion(error)
+                    return
+                }
+                // Ordiniamo lato client sul nome visualizzato (caption), così la lista è
+                // sempre alfabetica e deterministica indipendentemente dall'ordine del server.
+                self?.allItems = (response?.Items ?? []).sorted {
+                    $0.caption.localizedCaseInsensitiveCompare($1.caption) == .orderedAscending
+                }
+                self?.loaded = true
+                completion(nil)
+            }
+        }
+    }
+
+    /// Risultati filtrati per la query (vuota = tutti).
+    @objc func filtered(_ query: String) -> [BcsDirectoryItem] {
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        if q.isEmpty { return allItems }
+        return allItems.filter { $0.matches(q) }
+    }
 }

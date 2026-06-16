@@ -28,6 +28,7 @@
 @property(nonatomic, strong) IBOutlet UIButton *contactsButton;
 @property(nonatomic, strong) IBOutlet UIButton *dialerButton;
 @property(nonatomic, strong) IBOutlet UIButton *chatButton;
+@property(nonatomic, strong) IBOutlet UIButton *directoryButton;
 @property(nonatomic, strong) IBOutlet UIBouncingView *historyNotificationView;
 @property(nonatomic, strong) IBOutlet UIBouncingView *chatNotificationView;
 @property(nonatomic, strong) IBOutlet UILabel *chatNotificationLabel;
@@ -40,5 +41,6 @@
 - (IBAction)onContactsClick:(id)event;
 - (IBAction)onDialerClick:(id)event;
 - (IBAction)onChatClick:(id)event;
+- (IBAction)onDirectoryClick:(id)event;
 
 @end

@@ -114,6 +114,8 @@
 						   [view equal:ChatConversationInfoView.compositeViewDescription] ||
 						   [view equal:ChatConversationImdnView.compositeViewDescription] ||
 	[view equal:ChatConversationViewSwift.compositeViewDescription];
+	_directoryButton.selected = [view equal:DirectoryListView.compositeViewDescription] ||
+								[view equal:DirectoryDetailsView.compositeViewDescription];
 	if ([LinphoneManager.instance lpConfigBoolForKey:@"disable_chat_feature"] && [self viewIsCurrentlyPortrait]) {
 		CGFloat itemWidth = [UIScreen mainScreen].bounds.size.width/3;
 		[_chatButton setEnabled:false];
@@ -143,7 +145,9 @@
 							   ? _dialerButton.frame.origin.x
 							   : (_chatButton.selected
 									  ? _chatButton.frame.origin.x
-									  : -selectedNewFrame.size.width /*hide it if none is selected*/))));
+									  : (_directoryButton.selected
+											 ? _directoryButton.frame.origin.x
+											 : -selectedNewFrame.size.width /*hide it if none is selected*/)))));
 	} else {
 		selectedNewFrame.origin.y =
 			(_historyButton.selected
@@ -154,7 +158,9 @@
 							   ? _dialerButton.frame.origin.y
 							   : (_chatButton.selected
 									  ? _chatButton.frame.origin.y
-									  : -selectedNewFrame.size.height /*hide it if none is selected*/))));
+									  : (_directoryButton.selected
+											 ? _directoryButton.frame.origin.y
+											 : -selectedNewFrame.size.height /*hide it if none is selected*/)))));
 	}
 
 	CGFloat delay = ANIMATED ? 0.3 : 0;
@@ -189,6 +195,10 @@
 
 - (IBAction)onChatClick:(id)event {
 	[PhoneMainView.instance changeCurrentView:ChatsListView.compositeViewDescription];
+}
+
+- (IBAction)onDirectoryClick:(id)event {
+	[PhoneMainView.instance changeCurrentView:DirectoryListView.compositeViewDescription];
 }
 
 @end

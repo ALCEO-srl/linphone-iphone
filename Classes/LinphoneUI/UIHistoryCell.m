@@ -58,17 +58,16 @@
 
 - (IBAction)onDetails:(id)event {
 	if (callLog != NULL) {
-		HistoryDetailsView *view = VIEW(HistoryDetailsView);
-		if (linphone_call_log_get_call_id(callLog) != NULL) {
-			if (linphone_call_log_was_conference(callLog)) {
-				ConferenceHistoryDetailsView *view = VIEW(ConferenceHistoryDetailsView);
-				[PhoneMainView.instance changeCurrentView:view.compositeViewDescription];
-				[view setCallLogWithCallLog:callLog];
-			} else {
-				// Go to History details view
-				[view setCallLogId:[NSString stringWithUTF8String:linphone_call_log_get_call_id(callLog)]];
-				[PhoneMainView.instance changeCurrentView:view.compositeViewDescription];
-			}
+		if (linphone_call_log_was_conference(callLog)) {
+			ConferenceHistoryDetailsView *view = VIEW(ConferenceHistoryDetailsView);
+			[PhoneMainView.instance changeCurrentView:view.compositeViewDescription];
+			[view setCallLogWithCallLog:callLog];
+		} else {
+			// Go to History details view. I log BCS sono sintetici e non hanno call_id,
+			// quindi passiamo direttamente il puntatore al log.
+			HistoryDetailsView *view = VIEW(HistoryDetailsView);
+			[view setCallLog:callLog];
+			[PhoneMainView.instance changeCurrentView:view.compositeViewDescription];
 		}
 	}
 }

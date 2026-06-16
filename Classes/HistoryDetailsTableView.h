@@ -26,5 +26,7 @@
 	NSMutableArray *callLogs;
 }
 - (void)loadDataForAddress:(const LinphoneAddress *)peer;
+// Mostra un singolo call log (usato per i log sintetici BCS, assenti dal registro locale).
+- (void)loadDataForCallLog:(LinphoneCallLog *)log;
 
 @end

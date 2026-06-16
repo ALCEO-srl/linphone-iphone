@@ -715,6 +715,8 @@ import AVFoundation
 				break
 			case .End,
 					.Error:
+				// Registra la chiamata sul webservice BCS (sostituisce il DB locale).
+				BcsCallReportManager.shared.postCallLog(call: call)
 				var displayName = "Unknown"
 				if (call.dir == .Incoming) {
 					displayName = incomingDisplayName(call: call)

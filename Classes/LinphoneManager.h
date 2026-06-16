@@ -35,6 +35,7 @@
 #include "bctoolbox/list.h"
 #import "OrderedDictionary.h"
 
+@class BcsWsService;
 
 extern NSString *const LINPHONERC_APPLICATION_KEY;
 
@@ -203,6 +204,7 @@ typedef struct _LinphoneManagerSounds {
 + (void) setChatroomPushEnabled:(LinphoneChatRoom *)chatroom withPushEnabled:(BOOL)enabled;
 
 @property (readonly) BOOL isTesting;
+@property (strong, nonatomic) BcsWsService *bcsWsService;
 @property(readonly, strong) FastAddressBook *fastAddressBook;
 @property (readonly) NetworkType network;
 @property (readonly) const char*  frontCamId;

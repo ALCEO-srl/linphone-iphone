@@ -49,6 +49,22 @@ static UICompositeViewDescription *compositeDescription = nil;
 
 - (void)setCallLogId:(NSString *)acallLogId {
 	_callLogId = [acallLogId copy];
+	if (directCallLog != NULL) {
+		linphone_call_log_unref(directCallLog);
+		directCallLog = NULL;
+	}
+	[self update];
+}
+
+- (void)setCallLog:(LinphoneCallLog *)log {
+	if (directCallLog != NULL) {
+		linphone_call_log_unref(directCallLog);
+		directCallLog = NULL;
+	}
+	if (log != NULL) {
+		directCallLog = linphone_call_log_ref(log);
+	}
+	_callLogId = nil;
 	[self update];
 }
 
@@ -115,6 +131,16 @@ static UICompositeViewDescription *compositeDescription = nil;
 	[NSNotificationCenter.defaultCenter removeObserver:self];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:@"LinphoneFriendPresenceUpdate" object:nil];
     [AvatarBridge removeAllObserver];
+	// Non azzeriamo directCallLog qui: se dal dettaglio si avvia una chiamata (es. fallita)
+	// la view scompare e ricompare, e dobbiamo poter ancora mostrare la stessa voce (come
+	// Android). Il nostro ref lo tiene valido anche se la cache viene rigenerata.
+}
+
+- (void)dealloc {
+	if (directCallLog != NULL) {
+		linphone_call_log_unref(directCallLog);
+		directCallLog = NULL;
+	}
 }
 
 #pragma mark - Event Functions
@@ -142,7 +168,10 @@ static UICompositeViewDescription *compositeDescription = nil;
 - (void)update {
 	// Look for the call log
 	callLog = NULL;
-	if (_callLogId) {
+	if (directCallLog != NULL) {
+		// Log sintetico BCS impostato direttamente (nessun call_id da cercare).
+		callLog = directCallLog;
+	} else if (_callLogId) {
 		const MSList *list = linphone_core_get_call_logs(LC);
 		while (list != NULL) {
 			LinphoneCallLog *log = (LinphoneCallLog *)list->data;
@@ -165,7 +194,8 @@ static UICompositeViewDescription *compositeDescription = nil;
 	_emptyLabel.hidden = YES;
 
 	const LinphoneAddress *addr = linphone_call_log_get_remote_address(callLog);
-	_addContactButton.hidden = ([FastAddressBook getContactWithAddress:addr] != nil);
+	// Pulsante "aggiungi ai contatti" non utilizzato con la rubrica BCS: sempre nascosto.
+	_addContactButton.hidden = YES;
 	[ContactDisplay setDisplayNameLabel:_contactLabel forAddress:addr withAddressLabel:_addressLabel];
 	[_avatarImage setImage:[FastAddressBook imageForAddress:addr]];
     Contact *contact = [FastAddressBook getContactWithAddress:addr];
@@ -177,7 +207,12 @@ static UICompositeViewDescription *compositeDescription = nil;
 	char *addrURI = linphone_address_as_string_uri_only(addr);
 	ms_free(addrURI);
 
-	[_tableView loadDataForAddress:(callLog ? linphone_call_log_get_remote_address(callLog) : NULL)];
+	if (directCallLog != NULL) {
+		// Log sintetico BCS: non è nel registro locale, mostriamo direttamente questa voce.
+		[_tableView loadDataForCallLog:directCallLog];
+	} else {
+		[_tableView loadDataForAddress:(callLog ? linphone_call_log_get_remote_address(callLog) : NULL)];
+	}
 }
 
 - (void)shouldHideEncryptedChatView:(BOOL)hasLime {

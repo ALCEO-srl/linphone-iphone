@@ -20,6 +20,7 @@
 #import "HistoryListView.h"
 #import "PhoneMainView.h"
 #import "LinphoneUI/UIHistoryCell.h"
+#import "linphoneapp-Swift.h"
 
 @implementation HistoryListView
 
@@ -124,17 +125,20 @@ static UICompositeViewDescription *compositeDescription = nil;
 }
 
 - (IBAction)onDeleteClick:(id)event {
-	NSString *msg = [NSString stringWithFormat:NSLocalizedString(@"Do you want to delete selected logs?", nil)];
+	// Come Android: il cestino cancella l'intero registro, previa conferma.
+	NSString *msg = NSLocalizedString(@"Do you want to delete all calls?", nil);
 	[UIConfirmationDialog ShowWithMessage:msg
 		cancelMessage:nil
 		confirmMessage:nil
 		onCancelClick:^() {
-		  [self onEditionChangeClick:nil];
 		}
 		onConfirmationClick:^() {
-		  [_tableController removeSelectionUsing:nil];
-		  [_tableController loadData];
-		  [self onEditionChangeClick:nil];
+		  [[BcsCallReportManager shared] clearAllWithCompletion:^(NSError *error) {
+			if (error) {
+				NSLog(@"[BcsCallReport] clear all failed: %@", error.localizedDescription);
+			}
+			[_tableController loadData];
+		  }];
 		}];
 }
 

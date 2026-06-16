@@ -86,15 +86,15 @@ struct BcsRemoteParty: Codable {
     /// Scarica le ultime 500 voci e costruisce i LinphoneCallLog sintetici (come Android).
     /// Il completion restituisce un array di NSValue che incapsulano i puntatori
     /// LinphoneCallLog*, pronti per essere consumati da HistoryListTableView.
-    @objc func fetchCallLogs(completion: @escaping ([NSValue]) -> Void) {
+    @objc func fetchCallLogs(completion: @escaping ([NSValue], NSError?) -> Void) {
         guard let service = service else {
-            completion([])
+            completion([], nil)
             return
         }
         service.fetchCallReport(limit: BcsCallReportManager.fetchLimit, offset: 0) { [weak self] response, error in
             if let error = error {
                 NSLog("[BcsCallReport] fetchCallLogs error: \(error.localizedDescription)")
-                DispatchQueue.main.async { completion([]) }
+                DispatchQueue.main.async { completion([], error) }
                 return
             }
             let items = response?.Items ?? []
@@ -102,11 +102,11 @@ struct BcsRemoteParty: Codable {
             // gira su un thread di background, quindi costruiamo i CallLog sintetici sul
             // main thread (lo stesso su cui il core esegue iterate).
             DispatchQueue.main.async {
-                guard let self = self else { completion([]); return }
+                guard let self = self else { completion([], nil); return }
                 let logs = self.buildSyntheticLogs(from: items)
                 self.syntheticLogs = logs
                 self.cacheValid = true
-                completion(self.mapToValues(logs))
+                completion(self.mapToValues(logs), nil)
             }
         }
     }

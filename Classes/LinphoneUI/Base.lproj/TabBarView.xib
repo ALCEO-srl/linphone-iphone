@@ -13,6 +13,7 @@
                 <outlet property="chatNotificationView" destination="37" id="41"/>
                 <outlet property="contactsButton" destination="8" id="27"/>
                 <outlet property="dialerButton" destination="7" id="12"/>
+                <outlet property="directoryButton" destination="dir-Bt-n01" id="dir-Ou-t01"/>
                 <outlet property="historyButton" destination="6" id="13"/>
                 <outlet property="historyNotificationLabel" destination="34" id="35"/>
                 <outlet property="historyNotificationView" destination="32" id="36"/>
@@ -32,7 +33,7 @@
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                 </imageView>
                 <button opaque="NO" tag="2" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" id="6" userLabel="historyButton" customClass="UIIconButton">
-                    <frame key="frameInset" minX="0.0%" minY="0.0%" width="25.00%" height="100.00%"/>
+                    <frame key="frameInset" minX="0.0%" minY="0.0%" width="20.00%" height="100.00%"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     <accessibility key="accessibilityConfiguration" label="History"/>
                     <state key="normal" image="footer_history_default.png"/>
@@ -43,7 +44,7 @@
                     </connections>
                 </button>
                 <button opaque="NO" tag="3" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" id="8" userLabel="contactsButton" customClass="UIIconButton">
-                    <frame key="frameInset" minX="25.00%" minY="0.0%" width="25.00%" height="100.00%"/>
+                    <frame key="frameInset" minX="20.00%" minY="0.0%" width="20.00%" height="100.00%"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     <accessibility key="accessibilityConfiguration" label="Contacts"/>
                     <inset key="titleEdgeInsets" minX="0.0" minY="40" maxX="0.0" maxY="0.0"/>
@@ -58,7 +59,7 @@
                     </connections>
                 </button>
                 <button opaque="NO" tag="4" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" id="7" userLabel="dialerButton" customClass="UIIconButton">
-                    <frame key="frameInset" minX="50.00%" minY="0.0%" width="25.00%" height="100.00%"/>
+                    <frame key="frameInset" minX="60.00%" minY="0.0%" width="20.00%" height="100.00%"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     <accessibility key="accessibilityConfiguration" label="Dialer"/>
                     <state key="normal" image="footer_dialer_default.png"/>
@@ -69,7 +70,7 @@
                     </connections>
                 </button>
                 <button opaque="NO" tag="5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" id="5" userLabel="chatButton" customClass="UIIconButton">
-                    <frame key="frameInset" minX="75.00%" minY="0.0%" width="25.00%" height="100.00%"/>
+                    <frame key="frameInset" minX="80.00%" minY="0.0%" width="20.00%" height="100.00%"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     <accessibility key="accessibilityConfiguration" label="Chat"/>
                     <inset key="titleEdgeInsets" minX="0.0" minY="40" maxX="0.0" maxY="0.0"/>
@@ -80,8 +81,18 @@
                         <action selector="onChatClick:" destination="-1" eventType="touchUpInside" id="26"/>
                     </connections>
                 </button>
+                <button opaque="NO" tag="13" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" id="dir-Bt-n01" userLabel="directoryButton" customClass="UIIconButton">
+                    <frame key="frameInset" minX="40.00%" minY="0.0%" width="20.00%" height="100.00%"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                    <accessibility key="accessibilityConfiguration" label="Directory"/>
+                    <state key="normal" image="footer_directory.png"/>
+                    <state key="highlighted" backgroundImage="color_A.png"/>
+                    <connections>
+                        <action selector="onDirectoryClick:" destination="-1" eventType="touchUpInside" id="dir-Ac-t01"/>
+                    </connections>
+                </button>
                 <imageView userInteractionEnabled="NO" tag="6" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="color_A.png" id="eC3-Hw-cqQ" userLabel="selectedButtonImage">
-                    <frame key="frameInset" minX="50.00%" width="25.00%" height="3"/>
+                    <frame key="frameInset" minX="0.0%" width="20.00%" height="3"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                 </imageView>
                 <view hidden="YES" autoresizesSubviews="NO" userInteractionEnabled="NO" tag="7" contentMode="scaleToFill" id="37" userLabel="chatNotificationView" customClass="UIBouncingView">

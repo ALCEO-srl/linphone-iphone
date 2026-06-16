@@ -65,7 +65,7 @@
                                                 <action selector="onMissedClick:" destination="-1" eventType="touchUpInside" id="30"/>
                                             </connections>
                                         </button>
-                                        <button opaque="NO" contentMode="scaleAspectFit" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VWZ-Nd-W2s" userLabel="conferenceButton" customClass="UIInterfaceStyleButton">
+                                        <button hidden="YES" opaque="NO" contentMode="scaleAspectFit" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VWZ-Nd-W2s" userLabel="conferenceButton" customClass="UIInterfaceStyleButton">
                                             <rect key="frame" x="150" y="0.0" width="75" height="66"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" heightSizable="YES" flexibleMaxY="YES"/>
                                             <accessibility key="accessibilityConfiguration" label="Missed contacts filter"/>
@@ -141,8 +141,7 @@
                                     <state key="disabled" image="delete_disabled.png"/>
                                     <state key="highlighted" backgroundImage="color_E.png"/>
                                     <connections>
-                                        <action selector="onEditClick:" destination="18" eventType="touchUpInside" id="5Ft-HW-cVh"/>
-                                        <action selector="onEditionChangeClick:" destination="-1" eventType="touchUpInside" id="9gC-6R-w0j"/>
+                                        <action selector="onDeleteClick:" destination="-1" eventType="touchUpInside" id="9gC-6R-w0j"/>
                                     </connections>
                                 </button>
                             </subviews>

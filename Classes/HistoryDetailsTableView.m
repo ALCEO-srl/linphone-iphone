@@ -47,6 +47,25 @@
 	[[self tableView] reloadData];
 }
 
+- (void)loadDataForCallLog:(LinphoneCallLog *)log {
+	if (callLogs == nil) {
+		callLogs = [[NSMutableArray alloc] init];
+	} else {
+		[callLogs removeAllObjects];
+	}
+	if (log != NULL) {
+		// Voce "testa" del gruppo + tutte le chiamate consecutive raggruppate (conservate
+		// nel user_data del log), così il dettaglio le mostra tutte come Android.
+		[callLogs addObject:[NSValue valueWithPointer:log]];
+		MSList *grouped = linphone_call_log_get_user_data(log);
+		while (grouped) {
+			[callLogs addObject:[NSValue valueWithPointer:(LinphoneCallLog *)grouped->data]];
+			grouped = grouped->next;
+		}
+	}
+	[[self tableView] reloadData];
+}
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
 	return 1;
 }

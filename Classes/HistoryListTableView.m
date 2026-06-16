@@ -24,6 +24,11 @@
 #import "Utils.h"
 #import "linphoneapp-Swift.h"
 
+@interface HistoryListTableView ()
+@property(nonatomic, strong) UIActivityIndicatorView *loadingSpinner;
+@property(nonatomic, strong) UILabel *loadingLabel;
+@property(nonatomic, assign) BOOL isLoading;
+@end
 
 @implementation HistoryListTableView
 
@@ -70,7 +75,13 @@
 										   selector:@selector(coreUpdateEvent:)
 											   name:kLinphoneCoreUpdate
 											 object:nil];
-	[self loadData];
+	// Il registro remoto è cambiato (es. nuova chiamata registrata): ricarica.
+	[NSNotificationCenter.defaultCenter addObserver:self
+										   selector:@selector(loadData)
+											   name:@"BcsCallReportDidUpdate"
+											 object:nil];
+	// All'ingresso forziamo sempre un refresh dal server (multi-dispositivo).
+	[self refreshFromServer];
 	NSDictionary* userInfo;
 	[NSNotificationCenter.defaultCenter addObserver:self
 										   selector: @selector(receivePresenceNotification:)
@@ -109,6 +120,7 @@
 	[NSNotificationCenter.defaultCenter removeObserver:self name:kLinphoneAddressBookUpdate object:nil];
 	[NSNotificationCenter.defaultCenter removeObserver:self name:kLinphoneCoreUpdate object:nil];
 	[NSNotificationCenter.defaultCenter removeObserver:self name:kLinphoneCallUpdate object:nil];
+	[NSNotificationCenter.defaultCenter removeObserver:self name:@"BcsCallReportDidUpdate" object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:@"LinphoneFriendPresenceUpdate" object:nil];
     [AvatarBridge removeAllObserver];
 }
@@ -174,17 +186,138 @@
 	return [calendar dateFromComponents:dateComps];
 }
 
+// Ricostruzione "leggera": usa la cache se valida (es. notifiche interne), altrimenti
+// scarica dal server con spinner.
 - (void)loadData {
-	for (id day in self.sections.allKeys) {
-		for (id log in self.sections[day]) {
-			linphone_call_log_unref([log pointerValue]);
-		}
+	NSArray<NSValue *> *cached = [[BcsCallReportManager shared] cachedCallLogs];
+	if (cached != nil) {
+		[self rebuildSectionsWithLogs:cached];
+		return;
 	}
 
-	const bctbx_list_t *logs = linphone_core_get_call_logs(LC);
+	[self showLoadingSpinner];
+	[[BcsCallReportManager shared] fetchCallLogsWithCompletion:^(NSArray<NSValue *> *callLogs, NSError *error) {
+		[self handleFetchResult:callLogs error:error];
+	}];
+}
+
+// Come Android: a ogni ingresso nella view forziamo un refresh dal server, perché
+// l'utente può aver effettuato chiamate da altri dispositivi registrati. Mostriamo
+// intanto la cache (se presente) per evitare il flicker, poi aggiorniamo con i dati
+// freschi del server.
+- (void)refreshFromServer {
+	NSArray<NSValue *> *cached = [[BcsCallReportManager shared] cachedCallLogs];
+	if (cached != nil) {
+		[self rebuildSectionsWithLogs:cached];
+	} else {
+		[self showLoadingSpinner];
+	}
+	[[BcsCallReportManager shared] fetchCallLogsWithCompletion:^(NSArray<NSValue *> *callLogs, NSError *error) {
+		[self handleFetchResult:callLogs error:error];
+	}];
+}
+
+// Gestione del risultato del fetch dal server: errore -> messaggio d'errore; altrimenti
+// ricostruisce la lista (l'eventuale stato "vuoto" è gestito da rebuildSectionsWithLogs).
+- (void)handleFetchResult:(NSArray<NSValue *> *)callLogs error:(NSError *)error {
+	[self hideLoadingSpinner];
+	if (error) {
+		[self rebuildSectionsWithLogs:@[]];
+		[self showStatusMessage:error.localizedDescription];
+	} else {
+		[self rebuildSectionsWithLogs:callLogs];
+	}
+}
+
+- (void)ensureStatusViews {
+	if (!self.loadingSpinner) {
+		self.loadingSpinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+		self.loadingSpinner.hidesWhenStopped = YES;
+		[self.view addSubview:self.loadingSpinner];
+	}
+	if (!self.loadingLabel) {
+		self.loadingLabel = [[UILabel alloc] init];
+		self.loadingLabel.textAlignment = NSTextAlignmentCenter;
+		self.loadingLabel.numberOfLines = 0;
+		self.loadingLabel.textColor = [UIColor grayColor];
+		self.loadingLabel.font = [UIFont systemFontOfSize:15];
+		[self.view addSubview:self.loadingLabel];
+	}
+}
+
+- (void)positionStatusViewsWithSpinner:(BOOL)withSpinner {
+	CGPoint center = CGPointMake(self.view.bounds.size.width / 2, self.view.bounds.size.height / 2);
+	self.loadingSpinner.center = center;
+	self.loadingLabel.frame = CGRectMake(0, 0, self.view.bounds.size.width - 40, 60);
+	self.loadingLabel.center = withSpinner ? CGPointMake(center.x, center.y + 30) : center;
+	[self.view bringSubviewToFront:self.loadingSpinner];
+	[self.view bringSubviewToFront:self.loadingLabel];
+}
+
+// Usiamo una nostra label di stato (al posto dell'empty label della xib) così possiamo
+// distinguere "caricamento", "vuoto" ed "errore" e mostrarli localizzati.
+- (void)showLoadingSpinner {
+	self.isLoading = YES;
+	self.emptyView.hidden = YES;
+	[self ensureStatusViews];
+	self.loadingLabel.text = NSLocalizedString(@"Loading calls...", nil);
+	[self positionStatusViewsWithSpinner:YES];
+	[self.loadingSpinner startAnimating];
+	self.loadingLabel.hidden = NO;
+}
+
+- (void)showStatusMessage:(NSString *)text {
+	self.isLoading = NO;
+	self.emptyView.hidden = YES;
+	[self ensureStatusViews];
+	[self.loadingSpinner stopAnimating];
+	self.loadingLabel.text = text;
+	[self positionStatusViewsWithSpinner:NO];
+	self.loadingLabel.hidden = NO;
+}
+
+- (void)hideStatusMessage {
+	self.isLoading = NO;
+	[self.loadingSpinner stopAnimating];
+	self.loadingLabel.hidden = YES;
+}
+
+- (void)hideLoadingSpinner {
+	self.isLoading = NO;
+	[self.loadingSpinner stopAnimating];
+}
+
+// Il controller base (UICheckBoxTableView) in viewDidAppear ri-mostra l'empty label della
+// xib in base al numero di righe: la teniamo sempre nascosta perché gestiamo noi lo stato.
+- (void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+	self.emptyView.hidden = YES;
+}
+
+- (void)rebuildSectionsWithLogs:(NSArray<NSValue *> *)callLogs {
+	// Rilascia i ref UI dei log della ricostruzione precedente (può essere chiamata più
+	// volte di seguito: cache + refresh dal server). Libera anche le liste dei duplicati
+	// raggruppati conservate nel user_data.
+	for (id day in self.sections.allKeys) {
+		for (id log in self.sections[day]) {
+			LinphoneCallLog *head = [log pointerValue];
+			bctbx_list_t *grouped = linphone_call_log_get_user_data(head);
+			for (bctbx_list_t *it = grouped; it != NULL; it = it->next) {
+				linphone_call_log_unref((LinphoneCallLog *)it->data);
+			}
+			if (grouped) {
+				bctbx_list_free(grouped);
+				linphone_call_log_set_user_data(head, NULL);
+			}
+			linphone_call_log_unref(head);
+		}
+	}
 	self.sections = [NSMutableDictionary dictionary];
-	while (logs != NULL) {
-		LinphoneCallLog *log = (LinphoneCallLog *)logs->data;
+	for (NSValue *value in callLogs) {
+		LinphoneCallLog *log = (LinphoneCallLog *)[value pointerValue];
+		if (log == NULL) {
+			continue;
+		}
 		BOOL keepIt = (!missedFilter || [SwiftUtil isCallLogMissedWithCLog:log]) && (!confFilter||linphone_call_log_was_conference(log)) ;
 		if (keepIt) {
 			NSDate *startDate = [self
@@ -200,8 +333,10 @@
 
 			// if this contact was already the previous entry, do not add it twice
 			LinphoneCallLog *prev = [eventsOnThisDay lastObject] ? [[eventsOnThisDay lastObject] pointerValue] : NULL;
-			if (!linphone_call_log_was_conference(log) && prev && linphone_address_weak_equal(linphone_call_log_get_remote_address(prev),
-													linphone_call_log_get_remote_address(log))) {
+			const LinphoneAddress *prevAddr = prev ? linphone_call_log_get_remote_address(prev) : NULL;
+			const LinphoneAddress *logAddr = linphone_call_log_get_remote_address(log);
+			if (!linphone_call_log_was_conference(log) && prev && prevAddr && logAddr &&
+				linphone_address_weak_equal(prevAddr, logAddr)) {
 				bctbx_list_t *list = linphone_call_log_get_user_data(prev);
 				list = bctbx_list_append(list, linphone_call_log_ref(log));
 				linphone_call_log_set_user_data(prev, list);
@@ -209,18 +344,44 @@
 				[eventsOnThisDay addObject:[NSValue valueWithPointer:linphone_call_log_ref(log)]];
 			}
 		}
-		logs = bctbx_list_next(logs);
 	}
 
 	[self computeSections];
 
 	[super loadData];
-    
+	// Gestiamo noi lo stato vuoto (label localizzata) al posto dell'empty label della xib.
+	self.emptyView.hidden = YES;
+	if (!self.isLoading) {
+		if (_sortedDays.count == 0) {
+			[self showStatusMessage:NSLocalizedString(@"No call in your history", nil)];
+		} else {
+			[self hideStatusMessage];
+		}
+	}
+
 	if (IPAD) {
 		if (![self selectFirstRow]) {
 			HistoryDetailsView *view = VIEW(HistoryDetailsView);
 			[view setCallLogId:nil];
 		}
+	}
+}
+
+// Cancella una voce (e le eventuali duplicate raggruppate) dal registro remoto BCS,
+// usando l'Id BCS conservato nel refKey del LinphoneCallLog sintetico.
+- (void)deleteCallLogEntryOnServer:(LinphoneCallLog *)callLog {
+	if (callLog == NULL) {
+		return;
+	}
+	const char *refKey = linphone_call_log_get_ref_key(callLog);
+	if (refKey != NULL) {
+		NSString *itemId = [NSString stringWithUTF8String:refKey];
+		[[BcsCallReportManager shared] deleteEntryWithItemId:itemId
+												  completion:^(NSError *error) {
+			if (error) {
+				LOGE(@"[BcsCallReport] delete entry failed: %@", error.localizedDescription);
+			}
+		}];
 	}
 }
 
@@ -308,9 +469,12 @@
 					[view setDetailsWithSubject:[NSString stringWithUTF8String:linphone_conference_info_get_subject(confInfo)] url:[NSString stringWithUTF8String:linphone_address_as_string(linphone_conference_info_get_uri(confInfo))] conferenceInfo:(confInfo)];
 					[PhoneMainView.instance changeCurrentView:ConferenceWaitingRoomView.compositeViewDescription];
 				} else {
-					const LinphoneAddress *addr = linphone_call_log_get_remote_address(callLog);
+					// Come Android: il tap su una voce apre il dettaglio (non avvia la
+					// chiamata). La chiamata si avvia dal dettaglio.
 					[tableView deselectRowAtIndexPath:indexPath animated:NO];
-					[LinphoneManager.instance call:addr];
+					HistoryDetailsView *view = VIEW(HistoryDetailsView);
+					[view setCallLog:callLog];
+					[PhoneMainView.instance changeCurrentView:HistoryDetailsView.compositeViewDescription];
 				}
 			}
 		}
@@ -326,10 +490,10 @@
 		LinphoneCallLog *callLog = [log pointerValue];
 		MSList *count = linphone_call_log_get_user_data(callLog);
 		while (count) {
-			linphone_core_remove_call_log(LC, count->data);
+			[self deleteCallLogEntryOnServer:(LinphoneCallLog *)count->data];
 			count = count->next;
 		}
-		linphone_core_remove_call_log(LC, callLog);
+		[self deleteCallLogEntryOnServer:callLog];
 		linphone_call_log_unref(callLog);
 		[[_sections objectForKey:_sortedDays[indexPath.section]] removeObject:log];
 		if (((NSArray *)[_sections objectForKey:_sortedDays[indexPath.section]]).count == 0) {
@@ -351,10 +515,10 @@
 	  LinphoneCallLog *callLog = [log pointerValue];
 	  MSList *count = linphone_call_log_get_user_data(callLog);
 	  while (count) {
-		  linphone_core_remove_call_log(LC, count->data);
+		  [self deleteCallLogEntryOnServer:(LinphoneCallLog *)count->data];
 		  count = count->next;
 	  }
-	  linphone_core_remove_call_log(LC, callLog);
+	  [self deleteCallLogEntryOnServer:callLog];
 	  linphone_call_log_unref(callLog);
 	  [[_sections objectForKey:_sortedDays[indexPath.section]] removeObject:log];
 	  if (((NSArray *)[_sections objectForKey:_sortedDays[indexPath.section]]).count == 0) {
