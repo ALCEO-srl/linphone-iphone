@@ -314,8 +314,6 @@
 		633FEE641D3CD5590014B822 /* footer_chat_disabled.png in Resources */ = {isa = PBXBuildFile; fileRef = 633FECAA1D3CD5570014B822 /* footer_chat_disabled.png */; };
 		633FEE651D3CD5590014B822 /* footer_chat_disabled@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 633FECAB1D3CD5570014B822 /* footer_chat_disabled@2x.png */; };
 		633FEE661D3CD5590014B822 /* footer_contacts_default.png in Resources */ = {isa = PBXBuildFile; fileRef = 633FECAC1D3CD5570014B822 /* footer_contacts_default.png */; };
-		8BCA00020000000000000002 /* footer_directory.png in Resources */ = {isa = PBXBuildFile; fileRef = 8BCA00020000000000000001 /* footer_directory.png */; };
-		8BCA00020000000000000004 /* footer_directory@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 8BCA00020000000000000003 /* footer_directory@2x.png */; };
 		633FEE671D3CD5590014B822 /* footer_contacts_default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 633FECAD1D3CD5570014B822 /* footer_contacts_default@2x.png */; };
 		633FEE681D3CD5590014B822 /* footer_contacts_disabled.png in Resources */ = {isa = PBXBuildFile; fileRef = 633FECAE1D3CD5570014B822 /* footer_contacts_disabled.png */; };
 		633FEE691D3CD5590014B822 /* footer_contacts_disabled@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 633FECAF1D3CD5570014B822 /* footer_contacts_disabled@2x.png */; };
@@ -621,9 +619,6 @@
 		8B9B6A182C3427BF000D4119 /* BcsWsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B9B6A152C3427BE000D4119 /* BcsWsService.swift */; };
 		8B9B6A192C3427BF000D4119 /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B9B6A162C3427BE000D4119 /* AuthResponse.swift */; };
 		8B9B6A1A2C3427BF000D4119 /* UserConfResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B9B6A172C3427BE000D4119 /* UserConfResponse.swift */; };
-		8BCA00010000000000000002 /* CallReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCA00010000000000000001 /* CallReport.swift */; };
-		8BCA00010000000000000004 /* DirectoryResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCA00010000000000000003 /* DirectoryResponse.swift */; };
-		8BCA00010000000000000006 /* DirectoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCA00010000000000000005 /* DirectoryView.swift */; };
 		8BC7A60E2C382AB3000A6640 /* contact_presence_open_appointment.png in Resources */ = {isa = PBXBuildFile; fileRef = 8BC7A6062C382AB0000A6640 /* contact_presence_open_appointment.png */; };
 		8BC7A60F2C382AB3000A6640 /* contact_presence_closed.png in Resources */ = {isa = PBXBuildFile; fileRef = 8BC7A6072C382AB0000A6640 /* contact_presence_closed.png */; };
 		8BC7A6102C382AB3000A6640 /* contact_presence_notabuddy.png in Resources */ = {isa = PBXBuildFile; fileRef = 8BC7A6082C382AB1000A6640 /* contact_presence_notabuddy.png */; };
@@ -633,6 +628,11 @@
 		8BC7A6142C382AB4000A6640 /* contact_presence_open_onthephone.png in Resources */ = {isa = PBXBuildFile; fileRef = 8BC7A60C2C382AB3000A6640 /* contact_presence_open_onthephone.png */; };
 		8BC7A6152C382AB4000A6640 /* contact_presence_closed_appointment.png in Resources */ = {isa = PBXBuildFile; fileRef = 8BC7A60D2C382AB3000A6640 /* contact_presence_closed_appointment.png */; };
 		8BC7A6172C383840000A6640 /* contact_presence_open.png in Resources */ = {isa = PBXBuildFile; fileRef = 8BC7A6162C383840000A6640 /* contact_presence_open.png */; };
+		8BCA00010000000000000002 /* CallReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCA00010000000000000001 /* CallReport.swift */; };
+		8BCA00010000000000000004 /* DirectoryResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCA00010000000000000003 /* DirectoryResponse.swift */; };
+		8BCA00010000000000000006 /* DirectoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCA00010000000000000005 /* DirectoryView.swift */; };
+		8BCA00020000000000000002 /* footer_directory.png in Resources */ = {isa = PBXBuildFile; fileRef = 8BCA00020000000000000001 /* footer_directory.png */; };
+		8BCA00020000000000000004 /* footer_directory@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 8BCA00020000000000000003 /* footer_directory@2x.png */; };
 		8BD10EB52C21910600027C5F /* UIColor+Hex.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BD10EB42C21910600027C5F /* UIColor+Hex.m */; };
 		8BD10EB72C2196B000027C5F /* sturn.rc in Resources */ = {isa = PBXBuildFile; fileRef = 8BD10EB62C2196B000027C5F /* sturn.rc */; };
 		8BD541732C1B333100E35636 /* msgNotificationService.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 8BD5416C2C1B332E00E35636 /* msgNotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -1439,8 +1439,6 @@
 		633FECAA1D3CD5570014B822 /* footer_chat_disabled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = footer_chat_disabled.png; sourceTree = "<group>"; };
 		633FECAB1D3CD5570014B822 /* footer_chat_disabled@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "footer_chat_disabled@2x.png"; sourceTree = "<group>"; };
 		633FECAC1D3CD5570014B822 /* footer_contacts_default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = footer_contacts_default.png; sourceTree = "<group>"; };
-		8BCA00020000000000000001 /* footer_directory.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = footer_directory.png; sourceTree = "<group>"; };
-		8BCA00020000000000000003 /* footer_directory@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "footer_directory@2x.png"; sourceTree = "<group>"; };
 		633FECAD1D3CD5570014B822 /* footer_contacts_default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "footer_contacts_default@2x.png"; sourceTree = "<group>"; };
 		633FECAE1D3CD5570014B822 /* footer_contacts_disabled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = footer_contacts_disabled.png; sourceTree = "<group>"; };
 		633FECAF1D3CD5570014B822 /* footer_contacts_disabled@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "footer_contacts_disabled@2x.png"; sourceTree = "<group>"; };
@@ -1811,9 +1809,6 @@
 		8B9B6A152C3427BE000D4119 /* BcsWsService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BcsWsService.swift; sourceTree = "<group>"; };
 		8B9B6A162C3427BE000D4119 /* AuthResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthResponse.swift; sourceTree = "<group>"; };
 		8B9B6A172C3427BE000D4119 /* UserConfResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserConfResponse.swift; sourceTree = "<group>"; };
-		8BCA00010000000000000001 /* CallReport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallReport.swift; sourceTree = "<group>"; };
-		8BCA00010000000000000003 /* DirectoryResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DirectoryResponse.swift; sourceTree = "<group>"; };
-		8BCA00010000000000000005 /* DirectoryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DirectoryView.swift; sourceTree = "<group>"; };
 		8BBC6A842C2304B000960791 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/AssistantViewScreens.strings; sourceTree = "<group>"; };
 		8BBC6A852C230F0500960791 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/AssistantView.strings; sourceTree = "<group>"; };
 		8BBC6A862C231BCD00960791 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/SettingsView.strings; sourceTree = "<group>"; };
@@ -1833,6 +1828,11 @@
 		8BC7A60C2C382AB3000A6640 /* contact_presence_open_onthephone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = contact_presence_open_onthephone.png; sourceTree = "<group>"; };
 		8BC7A60D2C382AB3000A6640 /* contact_presence_closed_appointment.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = contact_presence_closed_appointment.png; sourceTree = "<group>"; };
 		8BC7A6162C383840000A6640 /* contact_presence_open.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = contact_presence_open.png; sourceTree = "<group>"; };
+		8BCA00010000000000000001 /* CallReport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallReport.swift; sourceTree = "<group>"; };
+		8BCA00010000000000000003 /* DirectoryResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DirectoryResponse.swift; sourceTree = "<group>"; };
+		8BCA00010000000000000005 /* DirectoryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DirectoryView.swift; sourceTree = "<group>"; };
+		8BCA00020000000000000001 /* footer_directory.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = footer_directory.png; sourceTree = "<group>"; };
+		8BCA00020000000000000003 /* footer_directory@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "footer_directory@2x.png"; sourceTree = "<group>"; };
 		8BD10EB32C2190B900027C5F /* UIColor+Hex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIColor+Hex.h"; sourceTree = "<group>"; };
 		8BD10EB42C21910600027C5F /* UIColor+Hex.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Hex.m"; sourceTree = "<group>"; };
 		8BD10EB62C2196B000027C5F /* sturn.rc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sturn.rc; sourceTree = "<group>"; };
@@ -5994,6 +5994,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Classes/linphone-Bridging-Header.h";
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "linphoneapp-Swift.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -6126,6 +6127,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Classes/linphone-Bridging-Header.h";
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "linphoneapp-Swift.h";
 				SWIFT_VERSION = 5.0;
@@ -6257,6 +6259,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Classes/linphone-Bridging-Header.h";
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "linphoneapp-Swift.h";
 				SWIFT_VERSION = 5.0;
@@ -6387,6 +6390,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Classes/linphone-Bridging-Header.h";
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "linphoneapp-Swift.h";
 				SWIFT_VERSION = 5.0;
