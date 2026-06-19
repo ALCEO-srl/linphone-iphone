@@ -12,7 +12,9 @@ Then, clone the custom belle-sip and liblinphone repositories somewhere. Checkou
 
 
 
-# BcsPhone iOS — Personalizzazioni rispetto a Linphone
+# Change log 
+
+## BcsPhone iOS 5.2.5 — Personalizzazioni rispetto a Linphone
 
 Promemoria delle modifiche apportate al fork iOS di Linphone per adattarlo alla
 piattaforma BCS. L'app si sta progressivamente allontanando dall'upstream: alcune
