@@ -93,81 +93,176 @@ struct BcsDirectoryResponse: Codable {
     }
 
     /// Ricerca libera su tutti i campi, case-insensitive (mirror del filtro Android).
+    /// dms: same 27 fields as the Android local filter (AvatarImageUrl excluded)
     func matches(_ query: String) -> Bool {
         let fields = [Id, Uri, Name, Surname, DisplayName, Profession, Company, EmailAddress,
                       MobilePhone, LandlinePhone, FaxPhone, Title, Address, Branch, Office,
                       Manager, Assistant, Attr1, Attr2, Attr3, Attr4, Attr5, Attr6, Attr7,
-                      Attr8, Attr9, Attr10, AvatarImageUrl]
+                      Attr8, Attr9, Attr10]
         return fields.contains { $0.range(of: query, options: .caseInsensitive) != nil }
     }
 }
 
-// MARK: - Manager rubrica (mirror di CoreContext.fetchDirectory)
+// MARK: - Manager rubrica (mirror di DirectoryViewModel, Android commit 126bd11ca)
 
+// dms: the directory is searched on the server one page at a time (filter on all the fields, pages of 50, next page
+// while scrolling). One request at a time: the filter typed meanwhile is searched when the answer arrives, only the
+// last one. A complete result (entries loaded = Count) is remembered with its filter: every search containing that
+// filter is done locally on the remembered entries. Shown only with a registered account.
 @objc class BcsDirectoryManager: NSObject {
 
     @objc static let shared = BcsDirectoryManager()
 
-    private var allItems: [BcsDirectoryItem] = []
-    private var loaded = false
+    static let pageSize = 50
+    static let minFilterLength = 2
+
+    /// Entries of the search shown, in the server order (alphabetical).
+    private(set) var items: [BcsDirectoryItem] = []
+    /// First page asked to the server and not arrived yet (spinner).
+    private(set) var isLoading = false
+    /// Error of the last first page, if any.
+    private(set) var lastError: NSError?
+    /// Called on the main thread when items / isLoading change.
+    var onChange: (() -> Void)?
+
+    private var loadedFilter = ""
+    private var loadedAccount: String?        // account of the items shown, nil = nothing loaded
+    private var totalCount = 0
+    private var requestInFlight = false
+    private var pendingFilter: String?
+    private var completeFilter: String?
+    private var completeItems: [BcsDirectoryItem] = []
 
     private var service: BcsWsService? {
         return LinphoneManager.instance().bcsWsService
     }
 
-    /// Scarica l'intera rubrica una sola volta (come Android), poi si filtra lato client.
-    /// Con force=true ricarica comunque dal server.
-    @objc func loadDirectory(force: Bool, completion: @escaping (NSError?) -> Void) {
-        // dms: the web service keeps the credentials, without a registered account nothing is asked to the server
-        guard LinphoneManager.instance().isBcsAccountRegistered() else {
-            allItems = []
-            loaded = false
-            DispatchQueue.main.async { completion(nil) }
-            return
-        }
-        if loaded && !force {
-            DispatchQueue.main.async { completion(nil) }
-            return
-        }
-        guard let service = service else {
-            DispatchQueue.main.async {
-                completion(NSError(domain: "BcsWs", code: -1, userInfo: [NSLocalizedDescriptionKey: "Servizio non disponibile"]))
-            }
-            return
-        }
-        service.fetchDirectory(filter: "") { [weak self] response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    NSLog("[BcsDirectory] loadDirectory error: \(error.localizedDescription)")
-                    completion(error)
-                    return
-                }
-                // dms: account disabled while the request was running
-                guard LinphoneManager.instance().isBcsAccountRegistered() else {
-                    completion(nil)
-                    return
-                }
-                // Ordiniamo lato client sul nome visualizzato (caption), così la lista è
-                // sempre alfabetica e deterministica indipendentemente dall'ordine del server.
-                self?.allItems = (response?.Items ?? []).sorted {
-                    $0.caption.localizedCaseInsensitiveCompare($1.caption) == .orderedAscending
-                }
-                self?.loaded = true
-                completion(nil)
-            }
-        }
+    private var registeredAccount: String? {
+        guard let manager = LinphoneManager.instance(), manager.isBcsAccountRegistered() else { return nil }
+        return manager.lastAccountIdRegistered
     }
 
-    // dms: cache emptied on Cleared of the registered account and on Ok of another account
+    /// Filter used for a text typed by the user: trimmed, fewer than 2 characters = whole directory.
+    static func filter(for text: String) -> String {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.count < minFilterLength ? "" : trimmed
+    }
+
+    private static func contains(_ filter: String, _ other: String) -> Bool {
+        return other.isEmpty || filter.range(of: other, options: .caseInsensitive) != nil
+    }
+
+    // dms: called on Cleared of the registered account and on Ok of another account: what is remembered is forgotten,
+    // the view repeats the current search on the server
     @objc func reset() {
-        allItems = []
-        loaded = false
+        items = []
+        totalCount = 0
+        loadedAccount = nil
+        lastError = nil
+        pendingFilter = nil
+        completeFilter = nil
+        completeItems = []
     }
 
-    /// Risultati filtrati per la query (vuota = tutti).
-    @objc func filtered(_ query: String) -> [BcsDirectoryItem] {
-        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        if q.isEmpty { return allItems }
-        return allItems.filter { $0.matches(q) }
+    /// Searches a filter (already normalized with filter(for:)). No request if the same search is already shown or
+    /// if it can be done on a remembered complete result.
+    func search(_ filter: String) {
+        guard let account = registeredAccount else {
+            // dms: the web service keeps the credentials, without a registered account nothing is asked
+            reset()
+            loadedFilter = filter
+            notify()
+            return
+        }
+        if requestInFlight {
+            pendingFilter = filter
+            return
+        }
+        if loadedAccount == account && loadedFilter == filter {
+            notify()
+            return
+        }
+        if let complete = completeFilter, BcsDirectoryManager.contains(filter, complete) {
+            items = filter.isEmpty ? completeItems : completeItems.filter { $0.matches(filter) }
+            totalCount = items.count
+            loadedFilter = filter
+            loadedAccount = account
+            lastError = nil
+            NSLog("[BcsDirectory] Search [\(filter)]: \(items.count) entries, filtered locally")
+            notify()
+            return
+        }
+        guard let service = service else { return }
+        requestInFlight = true
+        isLoading = true
+        notify()
+        service.fetchDirectory(filter: filter, limit: BcsDirectoryManager.pageSize, offset: 0) { [weak self] page, error in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.requestInFlight = false
+                self.isLoading = false
+                if self.registeredAccount == account {
+                    self.items = page?.Items ?? []
+                    self.totalCount = page?.Count ?? 0
+                    self.loadedFilter = filter
+                    // after an error the search is not considered loaded, so that it can be repeated
+                    self.loadedAccount = (error == nil) ? account : nil
+                    self.lastError = error
+                    if let error = error {
+                        NSLog("[BcsDirectory] Error: \(error.localizedDescription)")
+                    } else {
+                        NSLog("[BcsDirectory] Search [\(filter)]: \(self.items.count) of \(self.totalCount) entries")
+                        self.rememberIfComplete()
+                    }
+                }
+                self.notify()
+                self.searchPending()
+            }
+        }
+    }
+
+    /// dms: next page (offset = entries shown) while scrolling, until all the Count entries are loaded
+    func loadNextPage() {
+        guard !requestInFlight, let account = registeredAccount, loadedAccount == account,
+              items.count < totalCount, let service = service else { return }
+        requestInFlight = true
+        let filter = loadedFilter
+        let offset = items.count
+        service.fetchDirectory(filter: filter, limit: BcsDirectoryManager.pageSize, offset: offset) { [weak self] page, error in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.requestInFlight = false
+                if let page = page, self.registeredAccount == account, self.loadedAccount == account,
+                   self.loadedFilter == filter, self.items.count == offset {
+                    // an empty page means the directory changed: stop
+                    self.totalCount = page.Items.isEmpty ? self.items.count : page.Count
+                    self.items += page.Items
+                    NSLog("[BcsDirectory] Search [\(filter)]: \(self.items.count) of \(self.totalCount) entries")
+                    self.rememberIfComplete()
+                    self.notify()
+                } else if let error = error {
+                    NSLog("[BcsDirectory] Error: \(error.localizedDescription)")
+                }
+                self.searchPending()
+            }
+        }
+    }
+
+    // dms: the widest complete result is remembered (the one not contained in the filter already remembered)
+    private func rememberIfComplete() {
+        guard items.count >= totalCount else { return }
+        if let complete = completeFilter, BcsDirectoryManager.contains(loadedFilter, complete) { return }
+        completeFilter = loadedFilter
+        completeItems = items
+    }
+
+    private func searchPending() {
+        guard let filter = pendingFilter else { return }
+        pendingFilter = nil
+        search(filter)
+    }
+
+    private func notify() {
+        onChange?()
     }
 }

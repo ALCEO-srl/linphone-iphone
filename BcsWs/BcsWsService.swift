@@ -217,6 +217,8 @@ import Foundation
     // MARK: - Registro chiamate (/callreport)
 
     func fetchCallReport(limit: Int, offset: Int, completion: @escaping (BcsCallReportResponse?, NSError?) -> Void) {
+        // dms: one log line per request, to count them
+        NSLog("[BcsWs] callreport limit=\(limit) offset=\(offset)")
         let query = [
             URLQueryItem(name: "limit", value: String(limit)),
             URLQueryItem(name: "offset", value: String(offset))
@@ -236,7 +238,8 @@ import Foundation
         }
     }
 
-    func addCallReport(item: BcsCallReportItem, completion: @escaping (String?, NSError?) -> Void) {
+    // dms: returns the entry added by the server (with its Id), so that it can be put on top of the cache
+    func addCallReport(item: BcsCallReportItem, completion: @escaping (BcsCallReportItem?, NSError?) -> Void) {
         let body: Data
         do {
             body = try JSONEncoder().encode(item)
@@ -246,8 +249,8 @@ import Foundation
         }
         authedRequest(path: "\(userBasePath)/callreport", method: "POST", body: body) { data, error in
             if let error = error { completion(nil, error); return }
-            let id = data.flatMap { try? JSONDecoder().decode(BcsCallReportItem.self, from: $0).Id }
-            completion(id, nil)
+            let added = data.flatMap { try? JSONDecoder().decode(BcsCallReportItem.self, from: $0) }
+            completion(added, nil)
         }
     }
 
@@ -265,13 +268,18 @@ import Foundation
 
     // MARK: - Rubrica (/directory)
 
-    /// Scarica l'intera rubrica (come Android: una sola richiesta, filtro lato client).
-    func fetchDirectory(filter: String, completion: @escaping (BcsDirectoryResponse?, NSError?) -> Void) {
-        let query = [
-            URLQueryItem(name: "limit", value: "10000"),
-            URLQueryItem(name: "filter", value: filter),
+    // dms: one page of the directory searched on the server (filter on all the fields, Count = total of the results).
+    // Empty filter = parameter omitted. Alphabetical order from the server.
+    func fetchDirectory(filter: String, limit: Int, offset: Int, completion: @escaping (BcsDirectoryResponse?, NSError?) -> Void) {
+        NSLog("[BcsWs] directory filter=[\(filter)] limit=\(limit) offset=\(offset)")
+        var query = [
+            URLQueryItem(name: "limit", value: String(limit)),
+            URLQueryItem(name: "offset", value: String(offset)),
             URLQueryItem(name: "sortBy", value: "asc(Name)")
         ]
+        if !filter.isEmpty {
+            query.append(URLQueryItem(name: "filter", value: filter))
+        }
         authedRequest(path: "bcsws/v1/domains/\(domain)/directory", method: "GET", query: query) { data, error in
             if let error = error { completion(nil, error); return }
             guard let data = data else {

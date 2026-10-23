@@ -28,6 +28,7 @@
 @property(nonatomic, strong) UIActivityIndicatorView *loadingSpinner;
 @property(nonatomic, strong) UILabel *loadingLabel;
 @property(nonatomic, assign) BOOL isLoading;
+@property(nonatomic, assign) BOOL loadingOlder; // dms: one older page at a time
 @end
 
 @implementation HistoryListTableView
@@ -85,8 +86,14 @@
 										   selector:@selector(loadData)
 											   name:kBcsRegisteredAccountChanged
 											 object:nil];
-	// All'ingresso forziamo sempre un refresh dal server (multi-dispositivo).
-	[self refreshFromServer];
+	// dms: back to the foreground with the call report open: newest page read again (at most every 5 minutes)
+	[NSNotificationCenter.defaultCenter addObserver:self
+										   selector:@selector(applicationWillEnterForeground:)
+											   name:UIApplicationWillEnterForegroundNotification
+											 object:nil];
+	// dms: on opening, the newest page is read again at most every 5 minutes (calls made or deleted from other
+	// devices of the same user), otherwise the cache is shown without requests
+	[self refreshIfOld:YES];
 	NSDictionary* userInfo;
 	[NSNotificationCenter.defaultCenter addObserver:self
 										   selector: @selector(receivePresenceNotification:)
@@ -127,6 +134,7 @@
 	[NSNotificationCenter.defaultCenter removeObserver:self name:kLinphoneCallUpdate object:nil];
 	[NSNotificationCenter.defaultCenter removeObserver:self name:@"BcsCallReportDidUpdate" object:nil];
 	[NSNotificationCenter.defaultCenter removeObserver:self name:kBcsRegisteredAccountChanged object:nil];
+	[NSNotificationCenter.defaultCenter removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:@"LinphoneFriendPresenceUpdate" object:nil];
     [AvatarBridge removeAllObserver];
 }
@@ -192,42 +200,39 @@
 	return [calendar dateFromComponents:dateComps];
 }
 
-// Ricostruzione "leggera": usa la cache se valida (es. notifiche interne), altrimenti
-// scarica dal server con spinner.
+// dms: rebuilt from the cache only (filters, call updates, contacts): no request. The newest page is read only
+// when the cache does not belong to the registered account (first opening, account changed).
 - (void)loadData {
-	NSArray<NSValue *> *cached = [[BcsCallReportManager shared] cachedCallLogs];
-	if (cached != nil) {
-		[self rebuildSectionsWithLogs:cached];
+	BcsCallReportManager *manager = [BcsCallReportManager shared];
+	if (manager.isLoaded) {
+		[self rebuildSectionsWithLogs:[manager cachedCallLogs]];
 		return;
 	}
-
-	[self showLoadingSpinner];
-	[[BcsCallReportManager shared] fetchCallLogsWithCompletion:^(NSArray<NSValue *> *callLogs, NSError *error) {
-		[self handleFetchResult:callLogs error:error];
-	}];
+	[self refreshIfOld:NO];
 }
 
-// Come Android: a ogni ingresso nella view forziamo un refresh dal server, perché
-// l'utente può aver effettuato chiamate da altri dispositivi registrati. Mostriamo
-// intanto la cache (se presente) per evitare il flicker, poi aggiorniamo con i dati
-// freschi del server.
-- (void)refreshFromServer {
-	NSArray<NSValue *> *cached = [[BcsCallReportManager shared] cachedCallLogs];
-	if (cached != nil) {
-		[self rebuildSectionsWithLogs:cached];
-	} else {
+- (void)refreshIfOld:(BOOL)refreshIfOld {
+	BcsCallReportManager *manager = [BcsCallReportManager shared];
+	if (manager.isLoaded) {
+		[self rebuildSectionsWithLogs:[manager cachedCallLogs]];
+	} else if (LinphoneManager.instance.isBcsAccountRegistered) {
 		[self showLoadingSpinner];
 	}
-	[[BcsCallReportManager shared] fetchCallLogsWithCompletion:^(NSArray<NSValue *> *callLogs, NSError *error) {
-		[self handleFetchResult:callLogs error:error];
-	}];
+	[manager refreshIfOld:refreshIfOld
+			   completion:^(NSError *error) {
+				 [self handleFetchResult:[manager cachedCallLogs] error:error];
+			   }];
+}
+
+- (void)applicationWillEnterForeground:(NSNotification *)notif {
+	[self refreshIfOld:YES];
 }
 
 // Gestione del risultato del fetch dal server: errore -> messaggio d'errore; altrimenti
 // ricostruisce la lista (l'eventuale stato "vuoto" è gestito da rebuildSectionsWithLogs).
 - (void)handleFetchResult:(NSArray<NSValue *> *)callLogs error:(NSError *)error {
 	[self hideLoadingSpinner];
-	if (error) {
+	if (error && callLogs.count == 0) {
 		[self rebuildSectionsWithLogs:@[]];
 		[self showStatusMessage:error.localizedDescription];
 	} else {
@@ -373,24 +378,6 @@
 	}
 }
 
-// Cancella una voce (e le eventuali duplicate raggruppate) dal registro remoto BCS,
-// usando l'Id BCS conservato nel refKey del LinphoneCallLog sintetico.
-- (void)deleteCallLogEntryOnServer:(LinphoneCallLog *)callLog {
-	if (callLog == NULL) {
-		return;
-	}
-	const char *refKey = linphone_call_log_get_ref_key(callLog);
-	if (refKey != NULL) {
-		NSString *itemId = [NSString stringWithUTF8String:refKey];
-		[[BcsCallReportManager shared] deleteEntryWithItemId:itemId
-												  completion:^(NSError *error) {
-			if (error) {
-				LOGE(@"[BcsCallReport] delete entry failed: %@", error.localizedDescription);
-			}
-		}];
-	}
-}
-
 - (void)computeSections {
 	NSArray *unsortedDays = [self.sections allKeys];
 	_sortedDays = [[NSMutableArray alloc]
@@ -487,49 +474,33 @@
 	}
 }
 
-- (void)tableView:(UITableView *)tableView
-	commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
-	 forRowAtIndexPath:(NSIndexPath *)indexPath {
-	if (editingStyle == UITableViewCellEditingStyleDelete) {
-		[tableView beginUpdates];
-		id log = [_sections objectForKey:_sortedDays[indexPath.section]][indexPath.row];
-		LinphoneCallLog *callLog = [log pointerValue];
-		MSList *count = linphone_call_log_get_user_data(callLog);
-		while (count) {
-			[self deleteCallLogEntryOnServer:(LinphoneCallLog *)count->data];
-			count = count->next;
-		}
-		[self deleteCallLogEntryOnServer:callLog];
-		linphone_call_log_unref(callLog);
-		[[_sections objectForKey:_sortedDays[indexPath.section]] removeObject:log];
-		if (((NSArray *)[_sections objectForKey:_sortedDays[indexPath.section]]).count == 0) {
-			[_sections removeObjectForKey:_sortedDays[indexPath.section]];
-			[_sortedDays removeObjectAtIndex:indexPath.section];
-			[tableView deleteSections:[NSIndexSet indexSetWithIndex:indexPath.section]
-					 withRowAnimation:UITableViewRowAnimationFade];
-		}
-
-		[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
-						 withRowAnimation:UITableViewRowAnimationFade];
-		[tableView endUpdates];
-	}
+// dms: single entries are not deleted (only "Delete all", as on Android): no swipe / selection delete
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+	return NO;
 }
 
-- (void)removeSelectionUsing:(void (^)(NSIndexPath *))remover {
-	[super removeSelectionUsing:^(NSIndexPath *indexPath) {
-	  id log = [_sections objectForKey:_sortedDays[indexPath.section]][indexPath.row];
-	  LinphoneCallLog *callLog = [log pointerValue];
-	  MSList *count = linphone_call_log_get_user_data(callLog);
-	  while (count) {
-		  [self deleteCallLogEntryOnServer:(LinphoneCallLog *)count->data];
-		  count = count->next;
-	  }
-	  [self deleteCallLogEntryOnServer:callLog];
-	  linphone_call_log_unref(callLog);
-	  [[_sections objectForKey:_sortedDays[indexPath.section]] removeObject:log];
-	  if (((NSArray *)[_sections objectForKey:_sortedDays[indexPath.section]]).count == 0) {
-		  [_sections removeObjectForKey:_sortedDays[indexPath.section]];
-		  [_sortedDays removeObjectAtIndex:indexPath.section];
+// dms: older calls loaded while scrolling, when about 10 rows are left; the rows already shown stay still (same
+// call log instances, only the group across two pages changes)
+- (void)tableView:(UITableView *)tableView
+	  willDisplayCell:(UITableViewCell *)cell
+	forRowAtIndexPath:(NSIndexPath *)indexPath {
+	BcsCallReportManager *manager = [BcsCallReportManager shared];
+	if (!manager.hasOlder || _loadingOlder) {
+		return;
+	}
+	NSInteger remaining = 0;
+	for (NSInteger section = indexPath.section; section < (NSInteger)_sortedDays.count; section++) {
+		remaining += [self tableView:tableView numberOfRowsInSection:section];
+	}
+	remaining -= indexPath.row + 1;
+	if (remaining > 10) {
+		return;
+	}
+	_loadingOlder = YES;
+	[manager loadOlderWithCompletion:^(BOOL added) {
+	  self->_loadingOlder = NO;
+	  if (added) {
+		  [self rebuildSectionsWithLogs:[manager cachedCallLogs]];
 	  }
 	}];
 }

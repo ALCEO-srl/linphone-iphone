@@ -36,6 +36,7 @@ class DirectoryListView: UIViewController, UICompositeViewDelegate, UITableViewD
 
     private var items: [BcsDirectoryItem] = []
     private let cellId = "DirectoryCell"
+    private var searchTimer: Timer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,16 +53,21 @@ class DirectoryListView: UIViewController, UICompositeViewDelegate, UITableViewD
         // dms: while open, the directory follows the account registration (emptied when disabled, reloaded when enabled)
         NotificationCenter.default.addObserver(self, selector: #selector(registeredAccountChanged),
                                                name: NSNotification.Name(kBcsRegisteredAccountChanged), object: nil)
-        reload(force: false)
+        BcsDirectoryManager.shared.onChange = { [weak self] in self?.refreshFromManager() }
+        // dms: back from a contact detail the search and its results are kept (no request for the same search)
+        searchNow()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(kBcsRegisteredAccountChanged), object: nil)
+        searchTimer?.invalidate()
+        searchTimer = nil
     }
 
+    // dms: account changed or disabled: the manager forgot what it remembered, the current search is repeated
     @objc private func registeredAccountChanged() {
-        reload(force: false)
+        searchNow()
     }
 
     private func setupUI() {
@@ -109,36 +115,40 @@ class DirectoryListView: UIViewController, UICompositeViewDelegate, UITableViewD
         ])
     }
 
-    private func reload(force: Bool) {
-        emptyLabel.isHidden = true
-        if items.isEmpty {
-            spinner.startAnimating()
-        }
-        BcsDirectoryManager.shared.loadDirectory(force: force) { [weak self] error in
-            guard let self = self else { return }
-            self.spinner.stopAnimating()
-            if let error = error {
-                self.emptyLabel.text = error.localizedDescription
-                self.emptyLabel.isHidden = false
-                self.items = []
-                self.tableView.reloadData()
-                return
-            }
-            self.applyFilter(self.searchBar.text ?? "")
-        }
+    private func searchNow() {
+        searchTimer?.invalidate()
+        searchTimer = nil
+        BcsDirectoryManager.shared.search(BcsDirectoryManager.filter(for: searchBar.text ?? ""))
     }
 
-    private func applyFilter(_ query: String) {
-        items = BcsDirectoryManager.shared.filtered(query)
-        emptyLabel.text = "Nessun contatto trovato"
-        emptyLabel.isHidden = !items.isEmpty || spinner.isAnimating
+    private func refreshFromManager() {
+        let manager = BcsDirectoryManager.shared
+        items = manager.items
+        if manager.isLoading && items.isEmpty {
+            spinner.startAnimating()
+        } else {
+            spinner.stopAnimating()
+        }
+        emptyLabel.text = manager.lastError?.localizedDescription ?? "Nessun contatto trovato"
+        emptyLabel.isHidden = !items.isEmpty || manager.isLoading
         tableView.reloadData()
     }
 
     // MARK: UISearchBarDelegate
 
+    // dms: the search starts 400 ms after the last key (the server does not stop a search already started);
+    // fewer than 2 characters = whole directory, at once
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        applyFilter(searchText)
+        searchTimer?.invalidate()
+        searchTimer = nil
+        let filter = BcsDirectoryManager.filter(for: searchText)
+        if filter.isEmpty {
+            BcsDirectoryManager.shared.search(filter)
+            return
+        }
+        searchTimer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: false) { _ in
+            BcsDirectoryManager.shared.search(filter)
+        }
     }
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -159,6 +169,13 @@ class DirectoryListView: UIViewController, UICompositeViewDelegate, UITableViewD
         cell.detailTextLabel?.textColor = .gray
         cell.accessoryType = .disclosureIndicator
         return cell
+    }
+
+    // dms: next page when about 10 rows are left at the end of the list
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row >= items.count - 10 {
+            BcsDirectoryManager.shared.loadNextPage()
+        }
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

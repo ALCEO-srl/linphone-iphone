@@ -17,14 +17,21 @@ Fonte di verità = endpoint REST BCS `/callreport` (non più il DB locale). Appr
 Android): si costruiscono `LinphoneCallLog` **sintetici** via `core.createCallLog(...)` dai
 dati REST e si danno alla UI dello storico esistente.
 - Layer rete: `BcsWs/BcsWsService.swift` (auth Basic→Bearer + refresh/scadenza token, timeout 30s, gestione 400/403/404/500).
-- Logica: `BcsWs/CallReport.swift` → `BcsCallReportManager` (fetch log sintetici con cache + force-refresh all'ingresso view, POST a fine chiamata, delete singola/totale; Id BCS nel `refKey`).
+- Logica: `BcsWs/CallReport.swift` → `BcsCallReportManager`, **a pagine** (come Android, commit 126bd11ca):
+  `limit=1` per il `Count`, poi pagina più recente `limit=50 offset=max(0,Count-50)`; pagine più vecchie scorrendo
+  (offset −50 fino a 0). Cache per account (dedup per Id, stesse istanze `CallLog`), rilettura al massimo ogni 5 min
+  (apertura / ritorno in primo piano), POST a fine chiamata messo in cima alla cache senza rileggere. Solo
+  «Cancella tutto», niente cancellazione singola. Ogni log sintetico viene tolto subito dal DB locale del core
+  (`createCallLog` lo salva). Vuoto senza account registrato.
 - UI: `Classes/HistoryListTableView.m`, `HistoryListView.m`, `HistoryDetailsView.{h,m}`, `HistoryDetailsTableView.{h,m}`, `UIHistoryCell.m`.
 - POST a fine chiamata: `Classes/Swift/CallManager.swift` (case `.End/.Error`).
 
 ### 2. Rubrica centralizzata (nuova tab)
-Ricerca sulla directory BCS `/directory`. Approccio (come Android): **fetch-all + filtro
-lato client** (il server rifà la ricerca da zero a ogni richiesta, quindi niente paginazione
-con offset).
+Ricerca sulla directory BCS `/directory`, **sul server a pagine** (come Android, commit 126bd11ca):
+`filter` + `limit=50` + `offset`, ordine `sortBy=asc(Name)`; pagina successiva quando mancano ~10 righe; una sola
+richiesta in volo (il testo scritto nel frattempo si cerca all'arrivo, solo l'ultimo); debounce 400 ms; < 2 caratteri
+= elenco senza filtro. Un risultato completo (voci = `Count`) viene ricordato e le ricerche che contengono quel filtro
+si fanno in locale. Vuota senza account registrato; si azzera al cambio/disattivazione account.
 - Modelli + manager: `BcsWs/DirectoryResponse.swift` (`BcsDirectoryItem`, `BcsDirectoryManager`).
 - UI programmatica (niente xib): `BcsWs/DirectoryView.swift` (`DirectoryListView`, `DirectoryDetailsView`).
 - Tab: `Classes/LinphoneUI/TabBarView.{h,m}` + `Base.lproj/TabBarView.xib` (5° bottone, portrait+landscape). Icona `Resources/images/footer_directory.png`.
