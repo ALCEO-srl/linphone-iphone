@@ -53,8 +53,8 @@ static UICompositeViewDescription *compositeDescription = nil;
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
 
-	_padView.hidden =
-		!IPAD && UIInterfaceOrientationIsLandscape(PhoneMainView.instance.mainViewController.currentOrientation);
+	// dms: the pad stays visible in landscape too (right half, see layoutPad), as on Android
+	_padView.hidden = NO;
 
 	// Set observer
 	[NSNotificationCenter.defaultCenter addObserver:self
@@ -180,13 +180,40 @@ static UICompositeViewDescription *compositeDescription = nil;
 	CGRect frame = self.view.frame;
 	frame.origin = CGPointMake(0, 0);
 	_videoPreview.frame = frame;
-	_padView.hidden = !IPAD && UIInterfaceOrientationIsLandscape(toInterfaceOrientation);
+	// dms: pad no longer hidden in landscape (laid out in the right half by layoutPad)
+	_padView.hidden = NO;
 	if (linphone_core_get_calls_nb(LC)) {
 		_backButton.hidden = FALSE;
         _addContactButton.hidden = TRUE;
 	} else {
 		_backButton.hidden = TRUE;
         _addContactButton.hidden = FALSE;
+	}
+}
+
+- (void)viewDidLayoutSubviews {
+	[super viewDidLayoutSubviews];
+	[self layoutPad];
+}
+
+// dms: on iPhone Linphone hid the pad in landscape; it is shown in the right half instead (as on Android), with the
+// logo in the left half. In portrait the pad takes the whole width as before. The digit buttons resize with the pad.
+- (void)layoutPad {
+	if (IPAD) return;
+	UIView *top = _addressField.superview;
+	UIView *bottom = _callButton.superview;
+	if (!top || !bottom) return;
+	CGSize size = self.view.bounds.size;
+	BOOL landscape = size.width > size.height;
+	CGFloat y = CGRectGetMaxY(top.frame);
+	CGFloat height = MAX(0, bottom.frame.origin.y - y);
+	CGRect padFrame = landscape ? CGRectMake(size.width / 2, y, size.width / 2, height) : CGRectMake(0, y, size.width, height);
+	_padView.frame = padFrame;
+
+	UIView *logo = [self.view viewWithTag:2];
+	if ([logo isKindOfClass:[UIImageView class]]) {
+		CGRect logoArea = landscape ? CGRectMake(0, y, size.width / 2, height) : padFrame;
+		logo.frame = CGRectInset(logoArea, logoArea.size.width * 0.19, logoArea.size.height * 0.1);
 	}
 }
 
