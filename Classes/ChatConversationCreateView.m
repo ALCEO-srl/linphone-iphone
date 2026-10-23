@@ -115,6 +115,10 @@ static UICompositeViewDescription *compositeDescription = nil;
 		_selectedButtonImage.hidden = true;
 	}
 	
+	// dms: BcsPhone shows only avatar, name and SIP address (as on Android): no "all / SIP contacts" selectors,
+	// the contacts are all BCS buddies with a SIP address
+	_switchView.hidden = true;
+
 	if (_isForVoipConference) {
 		_switchView.hidden = true;
 		_chiffreOptionView.hidden = true;
@@ -154,7 +158,7 @@ static UICompositeViewDescription *compositeDescription = nil;
         frame.origin.x = (self.view.frame.size.width -  _chiffreOptionView.frame.size.width)/2;
     } else {
         _nextButton.hidden = TRUE;
-        _switchView.hidden = FALSE;
+        _switchView.hidden = TRUE; // dms: no "all / SIP contacts" selectors (was FALSE)
         frame.origin.x = self.view.frame.size.width * 0.192;
     }
     _chiffreOptionView.frame = frame;

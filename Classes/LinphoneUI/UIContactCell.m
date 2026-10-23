@@ -71,11 +71,29 @@
     LinphoneFriend *f = [[k.userInfo valueForKey:@"friend"] pointerValue];
     // only consider event if it's about us when not in ContactsListView
     if (_contact && (PhoneMainView.instance.currentView == ContactsListView.compositeViewDescription || _nameLabel.text == PhoneMainView.instance.currentName)) {
-        if (!_contact.friend || f != _contact.friend) {
+        if (![self isAboutFriend:f]) {
             return;
         }
         [self setContact:_contact];
     }
+}
+
+// dms: presence events matched by address and not only by pointer: with a search filter active (or after the BCS
+// buddies are reloaded) the contact shown may hold another LinphoneFriend object for the same buddy
+- (BOOL)isAboutFriend:(LinphoneFriend *)f {
+    if (!_contact.friend || !f) return NO;
+    if (f == _contact.friend) return YES;
+    const LinphoneAddress *a = linphone_friend_get_address(f);
+    const LinphoneAddress *b = linphone_friend_get_address(_contact.friend);
+    return a && b && linphone_address_weak_equal(a, b);
+}
+
+// dms: friend of the buddy list (the one receiving the presence) with the same address as the contact
+- (LinphoneFriend *)presenceFriendFor:(LinphoneFriend *)friend {
+    LinphoneFriendList *list = linphone_core_get_default_friend_list(LC);
+    const LinphoneAddress *addr = friend ? linphone_friend_get_address(friend) : NULL;
+    LinphoneFriend *found = (list && addr) ? linphone_friend_list_find_friend_by_address(list, addr) : NULL;
+    return found ? found : friend;
 }
 
 #pragma mark - Property Functions
@@ -87,7 +105,7 @@
     NSLog(@"####################  onPresenceChanged track=1");
     // only consider event if it's about us when not in ContactsListView
     if (_contact && (PhoneMainView.instance.currentView == ContactsListView.compositeViewDescription || _nameLabel.text == PhoneMainView.instance.currentName)) {
-        if (!_contact.friend || f != _contact.friend) {
+        if (![self isAboutFriend:f]) { // dms: matched by address
             return;
         }
         NSLog(@"#################### onPresenceChanged track=2");
@@ -97,6 +115,11 @@
 
 
 - (NSString *) getPresenceIconAsString:(LinphonePresenceModel *) presenceModel {
+    return [UIContactCell presenceIconNameForModel:presenceModel];
+}
+
+// dms: icon of a BCS presence model, also used for the presence text (LinphoneUtils presenceTextForFriend:)
++ (NSString *)presenceIconNameForModel:(const LinphonePresenceModel *)presenceModel {
     
     
     LinphonePresenceBasicStatus basicStatus = linphone_presence_model_get_basic_status(presenceModel);
@@ -186,9 +209,11 @@
 		[ContactDisplay setDisplayNameLabel:_nameLabel forContact:_contact];
 		//_organizationLabel.text = [FastAddressBook ogrganizationForContact:_contact];
         
-        if (linphone_friend_subscribes_enabled(_contact.friend)) {
+        // dms: presence read from the friend of the buddy list (see presenceFriendFor:)
+        LinphoneFriend *presenceFriend = [self presenceFriendFor:_contact.friend];
+        if (presenceFriend && linphone_friend_subscribes_enabled(presenceFriend)) {
           NSLog(@"######### Presence enabled, evaluating contact image");
-          const LinphonePresenceModel *presenceModel = linphone_friend_get_presence_model(_contact.friend);
+          const LinphonePresenceModel *presenceModel = linphone_friend_get_presence_model(presenceFriend);
           if (presenceModel) _linphoneImage.image = [UIImage imageNamed: [self getPresenceIconAsString: presenceModel]];//dms
         }
 	}

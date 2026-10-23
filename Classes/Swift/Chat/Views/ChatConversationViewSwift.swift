@@ -610,41 +610,20 @@ class ChatConversationViewSwift: BackActionsNavigationView, PHPickerViewControll
             
             
             let participantFriend = participants?.first?.address?.contact()?.friend
-            friend = Friend.getSwiftObject(cObject: participantFriend!)
-            
-            var presenceModel : PresenceModel?
-            var hasPresence : Bool? = false
-            
-            if friend?.address?.asStringUriOnly() != nil {
-				presenceModel = friend!.presenceModel
-                hasPresence = presenceModel != nil && presenceModel!.basicStatus == PresenceBasicStatus.Open
-            }
-            
-            if (hasPresence! && presenceModel?.consolidatedPresence == ConsolidatedPresence.Online) {
-                participantsGroupLabel.text = VoipTexts.chat_room_presence_online;
-            } else  if (hasPresence! && presenceModel?.consolidatedPresence == ConsolidatedPresence.Busy){
-                
-                let timeInterval = TimeInterval(presenceModel!.latestActivityTimestamp)
-                let myNSDate = Date(timeIntervalSince1970: timeInterval)
-                
-                if timeInterval == -1 {
-                    participantsGroupLabel.text = VoipTexts.chat_room_presence_away;
-                } else if Calendar.current.isDateInToday(myNSDate) {
-                    let dateFormatter = DateFormatter()
-                    dateFormatter.dateFormat = "HH:mm"
-                    let dateString = dateFormatter.string(from: myNSDate)
-                    participantsGroupLabel.text = VoipTexts.chat_room_presence_last_seen_online_today + dateString;
-                } else if Calendar.current.isDateInYesterday(myNSDate) {
-                    let dateFormatter = DateFormatter()
-                    dateFormatter.dateFormat = "HH:mm"
-                    let dateString = dateFormatter.string(from: myNSDate)
-                    participantsGroupLabel.text = VoipTexts.chat_room_presence_last_seen_online_yesterday + dateString;
+            // dms: presence followed on the friend of the BCS buddy list with the same address (the one receiving it)
+            if let contactFriend = participantFriend {
+                let swiftFriend = Friend.getSwiftObject(cObject: contactFriend)
+                if let address = swiftFriend.address, let buddy = Core.get().defaultFriendList?.findFriendByAddress(address: address) {
+                    friend = buddy
                 } else {
-                    let dateFormatter = DateFormatter()
-                    dateFormatter.dateStyle = .short
-                    let dateString = dateFormatter.string(from: myNSDate)
-                    participantsGroupLabel.text = VoipTexts.chat_room_presence_last_seen_online + dateString;
+                    friend = swiftFriend
                 }
+            }
+
+            // dms: presence of the BCS buddy as text (Italian / English), same states as the contact icons; without
+            // presence the SIP address stays shown
+            if let presenceFriend = friend, let text = LinphoneUtils.presenceText(for: presenceFriend.getCobject) {
+                participantsGroupLabel.text = text
             }
 
             friendDelegate = FriendDelegateStub(

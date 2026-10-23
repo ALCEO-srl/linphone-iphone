@@ -130,6 +130,7 @@ static UICompositeViewDescription *compositeDescription = nil;
 											   name:kLinphoneAccountCreationAuthenticationTokenReceived
 											 object:nil];
 
+	BOOL openGenericLogin = !mustRestoreView;
 	if (!mustRestoreView) {
 		new_account = NULL;
 		MSList *accounts = [LinphoneManager.instance createAccountsNotHiddenList];
@@ -143,6 +144,10 @@ static UICompositeViewDescription *compositeDescription = nil;
     _qrCodeButton.hidden = !ENABLE_QRCODE;
 	[self resetLiblinphone:FALSE];
 	[self enableWelcomeViewButtons];
+	if (openGenericLogin) {
+		// dms: the assistant opens directly on the generic SIP login, without the welcome screen (as on Android)
+		[self showGenericLoginAnimated:NO];
+	}
 	NSString *message = NSLocalizedString(@"I accept Belledonne Communications’ terms of use and privacy policy", nil);
 	NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:message attributes:@{NSForegroundColorAttributeName : [UIColor systemGrayColor]}];
 	[attributedString addAttribute:NSLinkAttributeName
@@ -1500,6 +1505,16 @@ UIColor *previousColor = (UIColor*)[sender backgroundColor]; \
     });
 }
 
+// dms: generic SIP login, same configuration as the "SIP account" button of the welcome screen
+- (void)showGenericLoginAnimated:(BOOL)animated {
+	linphone_core_load_config_from_xml(LC, [LinphoneManager bundleFile:@"assistant_external_sip.rc"].UTF8String);
+	if (account_creator) {
+		linphone_account_creator_set_domain(account_creator, [[LinphoneManager.instance lpConfigStringForKey:@"domain" inSection:@"assistant" withDefault:@""] UTF8String]);
+		linphone_account_creator_set_algorithm(account_creator, [[LinphoneManager.instance lpConfigStringForKey:@"algorithm" inSection:@"assistant" withDefault:@""] UTF8String]);
+	}
+	[self changeView:_loginView back:FALSE animation:animated];
+}
+
 - (IBAction)onGoToNonLinphoneInfoPage:(id)sender {
 	ONCLICKBUTTON(sender, 100, {		
         nextView = _loginView; //dms _linphoneSpecificFeatureWarningView;
@@ -1978,7 +1993,8 @@ UIColor *previousColor = (UIColor*)[sender backgroundColor]; \
 			UIView *view = [historyViews lastObject];
 			[historyViews removeLastObject];
 			[self changeView:view back:TRUE animation:TRUE];
-		} else if (currentView == _welcomeView) {
+		} else if (currentView == _welcomeView || currentView == _loginView) {
+			// dms: the generic login is the first screen (no welcome screen): back leaves the assistant
 			[PhoneMainView.instance popCurrentView];
 		} else {
 			[self changeView:_welcomeView back:TRUE animation:TRUE];

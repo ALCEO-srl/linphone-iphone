@@ -264,8 +264,9 @@
 	if (!addr)
 		return cell;
 	
-	cell.linphoneImage.hidden = [LinphoneManager.instance lpConfigBoolForKey:@"hide_linphone_contacts" inSection:@"app"] || !linphoneContact;
-	cell.securityImage.hidden = !(model && linphone_presence_model_has_capability(model, LinphoneFriendCapabilityLimeX3dh));
+	// dms: no "Linphone user" icon and no LIME encryption badge (LIME not available in BcsPhone), as on Android
+	cell.linphoneImage.hidden = YES;
+	cell.securityImage.hidden = YES;
 	int capabilities = [[_addressesCached objectAtIndex:indexPath.row] intValue];
 	BOOL greyCellForEncryptedChat = _isEncrypted ? capabilities > 1 : TRUE;
 	BOOL greyCellForGroupChat = _isGroupChat ? capabilities > 0 : TRUE;

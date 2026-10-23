@@ -31,5 +31,6 @@
 
 - (id)initWithIdentifier:(NSString*)identifier;
 - (NSString *) getPresenceIconAsString:(LinphonePresenceModel *) presenceModel; //dms
++ (NSString *)presenceIconNameForModel:(const LinphonePresenceModel *)presenceModel; // dms
 
 @end

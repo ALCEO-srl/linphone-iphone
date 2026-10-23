@@ -27,6 +27,8 @@
 #import "UILabel+Boldify.h"
 #import "FastAddressBook.h"
 #import "ColorSpaceUtilities.h"
+#import "LinphoneManager.h"
+#import "UIContactCell.h" // dms: presence icon logic
 
 @implementation LinphoneUtils
 
@@ -44,6 +46,29 @@
 }
 + (UIImage *)selfAvatar {
     return [LinphoneManager.instance avatar];
+}
+
+// dms: presence text from the same icon logic as the contacts list (UIContactCell), so that icon and text agree.
+// The presence is read from the friend of the BCS buddy list with the same address (the one receiving it).
++ (NSString *)presenceTextForFriend:(LinphoneFriend *)friend {
+	if (!friend) return nil;
+	LinphoneFriendList *list = linphone_core_get_default_friend_list(LC);
+	const LinphoneAddress *addr = linphone_friend_get_address(friend);
+	LinphoneFriend *buddy = (list && addr) ? linphone_friend_list_find_friend_by_address(list, addr) : NULL;
+	if (!buddy) buddy = friend;
+	if (!linphone_friend_subscribes_enabled(buddy)) return nil;
+
+	const LinphonePresenceModel *model = linphone_friend_get_presence_model(buddy);
+	if (!model) return NSLocalizedString(@"Unreachable", nil);
+	NSString *icon = [UIContactCell presenceIconNameForModel:model];
+	if ([icon isEqualToString:@"contact_presence_open"]) return NSLocalizedString(@"Available", nil);
+	if ([icon isEqualToString:@"contact_presence_open_away"] || [icon isEqualToString:@"contact_presence_open_outofoffice"])
+		return NSLocalizedString(@"Out of office", nil);
+	if ([icon isEqualToString:@"contact_presence_open_onthephone"]) return NSLocalizedString(@"On the phone", nil);
+	if ([icon isEqualToString:@"contact_presence_open_appointment"] || [icon isEqualToString:@"contact_presence_closed_appointment"])
+		return NSLocalizedString(@"Appointment", nil);
+	if ([icon isEqualToString:@"contact_presence_closed_busy"]) return NSLocalizedString(@"Do not disturb", nil);
+	return NSLocalizedString(@"Unreachable", nil);
 }
 
 + (NSString *)durationToString:(int)duration {
