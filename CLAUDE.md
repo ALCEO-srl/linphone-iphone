@@ -6,7 +6,7 @@ rimosse. Esiste un client **Android** gemello (`/Users/alceo/Documents/BcsPhone/
 da cui si portano le funzionalità: per nuovi port, **prima esplorare l'implementazione
 Android** e replicarne i pattern adattandoli a iOS (Swift, con parti Objective-C).
 
-Versione attuale: **5.2.6 (build 1007)** — da pubblicare (in produzione: 5.2.5 build 1006).
+Versione attuale: **5.2.6 (build 1008)** — da pubblicare (in produzione: 5.2.5 build 1006).
 
 ---
 
