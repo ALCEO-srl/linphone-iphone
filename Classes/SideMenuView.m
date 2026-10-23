@@ -20,6 +20,7 @@
 #import "SideMenuView.h"
 #import "LinphoneManager.h"
 #import "PhoneMainView.h"
+#import "StatusBarView.h"
 
 @implementation SideMenuView
 
@@ -36,6 +37,51 @@
 		_swipeGestureRecognizer.enabled = NO;
 	}
 #pragma deploymate pop
+
+	// dms: account switch on the right of the header, the registration LED just on its left
+	_accountSwitch = [[UISwitch alloc] init];
+	_accountSwitch.onTintColor = LINPHONE_MAIN_COLOR;
+	_accountSwitch.accessibilityLabel = NSLocalizedString(@"Account enabled", nil);
+	[_accountSwitch addTarget:self action:@selector(onAccountSwitch:) forControlEvents:UIControlEventValueChanged];
+	[_nameLabel.superview addSubview:_accountSwitch];
+}
+
+- (void)viewDidLayoutSubviews {
+	[super viewDidLayoutSubviews];
+	[self layoutHeader];
+}
+
+// dms: header laid out in code (the xibs use fixed frames): switch on the right and vertically centered, LED on its
+// left, name and address ending before the LED. Without default account the header is hidden and the menu starts at the top.
+- (void)layoutHeader {
+	UIView *header = _nameLabel.superview;
+	UITableView *table = _sideMenuTableViewController.tableView;
+	if (!header || !table) return;
+
+	BOOL hasDefault = [LinphoneManager isLcInitialized] && linphone_core_get_default_account(LC) != NULL;
+	header.hidden = !hasDefault;
+	CGFloat tableTop = hasDefault ? CGRectGetMaxY(header.frame) : header.frame.origin.y;
+	CGRect tableFrame = table.frame;
+	CGFloat bottom = CGRectGetMaxY(tableFrame);
+	tableFrame.origin.y = tableTop;
+	tableFrame.size.height = bottom - tableTop;
+	table.frame = tableFrame;
+	if (!hasDefault) return;
+
+	CGFloat margin = 10;
+	CGSize switchSize = _accountSwitch.intrinsicContentSize;
+	CGFloat height = header.bounds.size.height;
+	_accountSwitch.frame = CGRectMake(header.bounds.size.width - margin - switchSize.width,
+									  (height - switchSize.height) / 2, switchSize.width, switchSize.height);
+	CGRect led = _presenceImage.frame;
+	led.origin.x = _accountSwitch.frame.origin.x - 5 - led.size.width;
+	led.origin.y = (height - led.size.height) / 2;
+	_presenceImage.frame = led;
+	for (UILabel *label in @[ _nameLabel, _addressLabel ]) {
+		CGRect frame = label.frame;
+		frame.size.width = MAX(0, led.origin.x - 4 - frame.origin.x);
+		label.frame = frame;
+	}
 }
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
@@ -71,6 +117,9 @@
 		char *str = addr ? linphone_address_as_string(addr) : nil;
 		_addressLabel.text = str ? [NSString stringWithUTF8String:str] : NSLocalizedString(@"No address", nil);
 		if (str) ms_free(str);
+		// dms: LED from the real registration state (it was always green), switch from registerEnabled
+		_presenceImage.image = [StatusBarView imageForState:linphone_account_get_state(default_account)];
+		_accountSwitch.on = linphone_account_params_register_enabled(linphone_account_get_params(default_account));
 	} else {
 		MSList *accounts = [LinphoneManager.instance createAccountsNotHiddenList];
 		_nameLabel.text = accounts ? NSLocalizedString(@"No default account", nil) : NSLocalizedString(@"No account", nil);
@@ -88,6 +137,26 @@
 		_presenceImage.image = nil;
 	}
 	_avatarImage.image = [LinphoneUtils selfAvatar];
+	[self.view setNeedsLayout]; // dms: header shown / hidden with the default account
+}
+
+// dms: enabling is immediate; disabling keeps the switch on until the user confirms
+- (void)onAccountSwitch:(UISwitch *)sender {
+	LinphoneAccount *account = linphone_core_get_default_account(LC);
+	if (!account) return;
+	if (sender.on) {
+		[LinphoneManager.instance setAccount:account registerEnabled:YES];
+		return;
+	}
+	[sender setOn:YES animated:NO];
+	[LinphoneManager.instance confirmDisableAccountWithCompletion:^(BOOL confirmed) {
+	  if (!confirmed) return;
+	  LinphoneAccount *current = linphone_core_get_default_account(LC);
+	  if (!current) return;
+	  [LinphoneManager.instance setAccount:current registerEnabled:NO];
+	  // dms: the registration state may not change (account not registered), update the switch anyway
+	  [self updateHeader];
+	}];
 }
 
 #pragma deploymate push "ignored-api-availability"
@@ -97,6 +166,9 @@
 #pragma deploymate pop
 
 - (IBAction)onHeaderClick:(id)sender {
+	// dms: the account in the header opens its own settings, not the settings list
+	SettingsView *view = VIEW(SettingsView);
+	view.openDefaultAccount = YES;
 	[PhoneMainView.instance changeCurrentView:SettingsView.compositeViewDescription];
 	[PhoneMainView.instance.mainViewController hideSideMenu:YES];
 }
@@ -104,7 +176,7 @@
 - (IBAction)onAvatarClick:(id)sender {
 	// Cambio avatar dalla galleria disabilitato: il tap sull'avatar apre le impostazioni
 	// account, come il tap sul nome (onHeaderClick).
-	[PhoneMainView.instance changeCurrentView:SettingsView.compositeViewDescription];
+	[self onHeaderClick:sender];
 }
 
 - (IBAction)onBackgroundClicked:(id)sender {

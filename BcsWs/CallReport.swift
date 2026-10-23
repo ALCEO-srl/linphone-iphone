@@ -81,12 +81,24 @@ struct BcsRemoteParty: Codable {
         cacheValid = false
     }
 
+    // dms: cache emptied on Cleared of the registered account and on Ok of another account
+    @objc func reset() {
+        syntheticLogs = []
+        cacheValid = false
+    }
+
     // MARK: Lettura registro -> LinphoneCallLog sintetici
 
     /// Scarica le ultime 500 voci e costruisce i LinphoneCallLog sintetici (come Android).
     /// Il completion restituisce un array di NSValue che incapsulano i puntatori
     /// LinphoneCallLog*, pronti per essere consumati da HistoryListTableView.
     @objc func fetchCallLogs(completion: @escaping ([NSValue], NSError?) -> Void) {
+        // dms: the web service keeps the credentials, without a registered account the call report is empty
+        guard LinphoneManager.instance().isBcsAccountRegistered() else {
+            reset()
+            DispatchQueue.main.async { completion([], nil) }
+            return
+        }
         guard let service = service else {
             completion([], nil)
             return
@@ -103,6 +115,8 @@ struct BcsRemoteParty: Codable {
             // main thread (lo stesso su cui il core esegue iterate).
             DispatchQueue.main.async {
                 guard let self = self else { completion([], nil); return }
+                // dms: account disabled while the request was running
+                guard LinphoneManager.instance().isBcsAccountRegistered() else { completion([], nil); return }
                 let logs = self.buildSyntheticLogs(from: items)
                 self.syntheticLogs = logs
                 self.cacheValid = true

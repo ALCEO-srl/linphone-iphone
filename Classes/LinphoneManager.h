@@ -47,6 +47,9 @@ extern NSString *const kLinphoneCallUpdate;
 extern NSString *const kLinphoneRegistrationUpdate;
 extern NSString *const kLinphoneMainViewChange;
 extern NSString *const kLinphoneAddressBookUpdate;
+// dms: posted (asynchronously on the main thread) after the BCS registered account changed (Ok of a new
+// default account, Cleared of the registered one): the BCS views (directory, call report) reload
+extern NSString *const kBcsRegisteredAccountChanged;
 extern NSString *const kLinphoneLogsUpdate;
 extern NSString *const kLinphoneSettingsUpdate;
 extern NSString *const kLinphoneBluetoothAvailabilityUpdate;
@@ -230,5 +233,13 @@ typedef struct _LinphoneManagerSounds {
 // dms: technician mode, enabled from the debug popup (dialer code): shows the hidden settings and makes the
 // read-only ones editable. Kept in memory only, it is disabled when the app restarts.
 @property (nonatomic, assign) BOOL technicianMode;
+
+// dms: BCS data (buddies, directory, call report) is shown only with a registered account
+- (BOOL)isBcsAccountRegistered;
+// dms: enables / disables the registration of an account (clone of the params, then set)
+- (void)setAccount:(LinphoneAccount *)account registerEnabled:(BOOL)enabled;
+// dms: asks the confirmation before disabling the account (same dialog as the account deletion),
+// calls completion(YES) on "Disable", completion(NO) on "Cancel"
+- (void)confirmDisableAccountWithCompletion:(void (^)(BOOL confirmed))completion;
 
 @end

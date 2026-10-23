@@ -36,6 +36,8 @@
 @property(weak, nonatomic) IBOutlet UIButton *backButton;
 @property(weak, nonatomic) IBOutlet UILabel *titleLabel;
 @property(nonatomic) NSString* tmpPwd;
+// dms: when set, the settings open directly on the screen of the default account (tap on the account in the side menu)
+@property(nonatomic) BOOL openDefaultAccount;
 
 - (IBAction)onDialerBackClick:(id)sender;
 - (IBAction)onBackClick:(id)sender;

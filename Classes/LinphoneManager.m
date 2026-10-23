@@ -62,6 +62,7 @@ NSString *const kLinphoneTextComposeEvent = @"LinphoneTextComposeStarted";
 NSString *const kLinphoneCallUpdate = @"LinphoneCallUpdate";
 NSString *const kLinphoneRegistrationUpdate = @"LinphoneRegistrationUpdate";
 NSString *const kLinphoneAddressBookUpdate = @"LinphoneAddressBookUpdate";
+NSString *const kBcsRegisteredAccountChanged = @"BcsRegisteredAccountChanged";
 NSString *const kLinphoneMainViewChange = @"LinphoneMainViewChange";
 NSString *const kLinphoneLogsUpdate = @"LinphoneLogsUpdate";
 NSString *const kLinphoneSettingsUpdate = @"LinphoneSettingsUpdate";
@@ -738,6 +739,59 @@ static void linphone_iphone_configuring_status_changed(LinphoneCore *lc, Linphon
 	}
 }
 
+#pragma mark - BCS registered account (dms)
+
+// dms: BCS data (buddies, directory, call report) is shown only with a registered account
+- (BOOL)isBcsAccountRegistered {
+	return self.lastAccountIdRegistered.length != 0;
+}
+
+// dms: removes the BCS buddies of a friend list (from the last one, the list changes while removing)
+- (void)removeAllFriendsFromList:(LinphoneFriendList *)friendList {
+	const MSList *friends = linphone_friend_list_get_friends(friendList);
+	int count = (int)bctbx_list_size(friends);
+	for (int i = count - 1; i >= 0; i--) {
+		LinphoneFriend *f = bctbx_list_nth_data(linphone_friend_list_get_friends(friendList), i);
+		linphone_friend_list_remove_friend(friendList, f);
+	}
+}
+
+// dms: rebuilds the address book from the friend list and notifies the contacts view, which redoes its search
+- (void)bcsContactsChanged {
+	[self setContactsUpdated:TRUE];
+	[self.fastAddressBook fetchContactsInBackGroundThread];
+}
+
+// dms: queued on the main thread, so that the views reload after this listener has updated the registered account
+- (void)postBcsRegisteredAccountChanged {
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[NSNotificationCenter.defaultCenter postNotificationName:kBcsRegisteredAccountChanged object:self];
+	});
+}
+
+- (void)setAccount:(LinphoneAccount *)account registerEnabled:(BOOL)enabled {
+	if (!account) return;
+	LinphoneAccountParams *params = linphone_account_params_clone(linphone_account_get_params(account));
+	linphone_account_params_enable_register(params, enabled);
+	linphone_account_set_params(account, params);
+	linphone_account_params_unref(params);
+	LOGI(@"[Account] Registration %s", enabled ? "enabled" : "disabled");
+}
+
+- (void)confirmDisableAccountWithCompletion:(void (^)(BOOL confirmed))completion {
+	UIConfirmationDialog *dialog = [UIConfirmationDialog
+		ShowWithMessage:NSLocalizedString(@"If you disable the account you will no longer receive calls or messages until you enable it again. Continue?", nil)
+		  cancelMessage:nil
+		 confirmMessage:NSLocalizedString(@"Disable", nil)
+		  onCancelClick:^() {
+			completion(NO);
+		  }
+	onConfirmationClick:^() {
+	  completion(YES);
+	}];
+	dialog.subscribeLabel.hidden = YES;
+}
+
 #pragma mark - Registration State Functions
 
 - (void)onRegister:(LinphoneCore *)lc
@@ -807,24 +861,30 @@ message:(const char *)cmessage {
     //dms ***********************
     //This code will request the user configuration from our BCS web service every time an account is successfully registered. This
     //configuration contains the buddy list we want to use to populate the contacts view instead of the phone's address book.
+    // dms: the registered account is tracked here (set on Ok of the default account, reset on Cleared of the registered
+    // one): BCS buddies, directory and call report are shown only with a registered account, as on Android.
     LinphoneAccount *defaultAccount = linphone_core_get_default_account(lc);
-    
+
     LinphoneAccountParams const *accountParams = linphone_account_get_params(account);
-    LinphoneAddress *identity_address = linphone_account_params_get_identity_address(accountParams);
-    
-    char *curi = linphone_address_as_string_uri_only(identity_address);
-    NSString *uri = [NSString stringWithUTF8String:curi];
-    
-    if (state == LinphoneRegistrationOk && account == defaultAccount) {
-        
+    const LinphoneAddress *identity_address = linphone_account_params_get_identity_address(accountParams);
+
+    char *curi = identity_address ? linphone_address_as_string_uri_only(identity_address) : NULL;
+    NSString *uri = curi ? [NSString stringWithUTF8String:curi] : nil;
+    if (curi) ms_free(curi);
+
+    if (state == LinphoneRegistrationOk && account == defaultAccount && uri) {
+
         NSLog(@"########################### lastAccountIdRegistered: %@", self.lastAccountIdRegistered);
         if (self.lastAccountIdRegistered.length == 0 || ![self.lastAccountIdRegistered isEqualToString:  uri]) {
             self.lastAccountIdRegistered = uri;
-            
+            // dms: other account (or first registration): the cached BCS data belongs to the previous one
+            [BcsDirectoryManager.shared reset];
+            [BcsCallReportManager.shared reset];
+
             NSString *username = [NSString stringWithUTF8String:linphone_address_get_username(identity_address)];
             NSString *domain = [NSString stringWithUTF8String:linphone_address_get_domain(identity_address)];
             const LinphoneAuthInfo *info = linphone_account_find_auth_info(account);
-            NSString *password = linphone_auth_info_get_passwd(info) ? [NSString stringWithUTF8String:linphone_auth_info_get_passwd(info)] : @"nopassword";
+            NSString *password = (info && linphone_auth_info_get_passwd(info)) ? [NSString stringWithUTF8String:linphone_auth_info_get_passwd(info)] : @"nopassword";
 
             NSLog(@"Fetching UserConf Begin ###########################");
             [theBcsWsService setUserInfoWithUser:username domain:domain password:password];
@@ -832,25 +892,29 @@ message:(const char *)cmessage {
             [theBcsWsService fetchUserConfWithCompletion:^(UserConfResponse * _Nullable userConfResponse, NSError * _Nullable error) {
                 if (error) {
                     NSLog(@"Error fetching user configuration: %@", error.localizedDescription);
-                } else {
-                    NSLog(@"User %@ configuration fetched successfully.", userConfResponse.id);
-                    
-                    LinphoneFriendList *friendList = linphone_core_get_default_friend_list(lc) ? linphone_core_get_default_friend_list(lc) : linphone_core_create_friend_list(lc);
-                    
-                    
-                    const MSList *friends = linphone_friend_list_get_friends(friendList);
-                    int count = ms_list_size(friends);
-                    
-                    for (int i = count - 1; i >= 0; i--) {
-                        LinphoneFriend *f = ms_list_nth_data(friends, i);
-
-                        linphone_friend_list_remove_friend(friendList, f);
-                                                
+                    return;
+                }
+                // dms: the core API is not thread-safe and the URLSession completion runs in background
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // dms: the account may have been disabled or changed while the request was running
+                    if (![self.lastAccountIdRegistered isEqualToString:uri]) {
+                        NSLog(@"User configuration ignored, account %@ no longer registered", uri);
+                        return;
                     }
-                    
-                    if (friendList != linphone_core_get_default_friend_list(lc)) linphone_core_add_friend_list(lc, friendList);
+                    NSLog(@"User %@ configuration fetched successfully.", userConfResponse.id);
+
+                    LinphoneFriendList *friendList = linphone_core_get_default_friend_list(LC);
+                    BOOL newList = (friendList == NULL);
+                    if (newList) friendList = linphone_core_create_friend_list(LC);
+
+                    [self removeAllFriendsFromList:friendList];
+
+                    if (newList) {
+                        linphone_core_add_friend_list(LC, friendList);
+                        linphone_friend_list_unref(friendList);
+                    }
                     linphone_friend_list_enable_subscriptions(friendList, TRUE);
-                    
+
                     for (BuddyGroup *group in userConfResponse.misc.buddies) {
                         NSLog(@"Group Name: %@", group.name);
 
@@ -858,29 +922,40 @@ message:(const char *)cmessage {
                             NSLog(@"Buddy Display Name: %@", buddy.displayName);
                             NSLog(@"Buddy URI: %@", buddy.uri);
                             NSLog(@"Buddy Status: %@", buddy.buddy ? @"Buddy" : @"Not Buddy");
-                            
-                            LinphoneFriend *friend = linphone_core_create_friend_with_address(lc, buddy.uri.UTF8String);
-                            
+
+                            LinphoneFriend *friend = linphone_core_create_friend_with_address(LC, buddy.uri.UTF8String);
+                            if (!friend) continue;
+
                             linphone_friend_set_name(friend, buddy.displayName.UTF8String);
                             linphone_friend_enable_subscribes(friend, buddy.buddy);
                             linphone_friend_list_add_friend(friendList, friend);
+                            linphone_friend_unref(friend); // dms: the list keeps its own reference
                         }
                     }
-                    
+
+                    // dms: the contacts view redoes its search (current filter, magic search cache reset)
+                    [self bcsContactsChanged];
                     NSLog(@"Fetching UserConf End ###########################");
-                }
-                
+                });
             }];
+            [self postBcsRegisteredAccountChanged];
         }
-        
+
     }
-    if (state == LinphoneRegistrationCleared && account == defaultAccount) {
-        if (self.lastAccountIdRegistered.length != 0) {
-            NSLog(@"[Context] Account Removing buddies");
-            self.lastAccountIdRegistered = @"";
-            //[self disableSubscriptions];
-            //[contactsManager clearFriends];
+    if (state == LinphoneRegistrationCleared && uri && self.lastAccountIdRegistered.length != 0 &&
+        [self.lastAccountIdRegistered isEqualToString:uri]) {
+        NSLog(@"[Context] Account Removing buddies");
+        self.lastAccountIdRegistered = @"";
+        // dms: account disabled or removed: BCS data no longer visible
+        [BcsDirectoryManager.shared reset];
+        [BcsCallReportManager.shared reset];
+        LinphoneFriendList *friendList = linphone_core_get_default_friend_list(LC);
+        if (friendList) {
+            linphone_friend_list_enable_subscriptions(friendList, FALSE);
+            [self removeAllFriendsFromList:friendList];
         }
+        [self bcsContactsChanged];
+        [self postBcsRegisteredAccountChanged];
     }
     //dms ***********************/
     

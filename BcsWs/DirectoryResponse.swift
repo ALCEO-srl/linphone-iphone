@@ -118,6 +118,13 @@ struct BcsDirectoryResponse: Codable {
     /// Scarica l'intera rubrica una sola volta (come Android), poi si filtra lato client.
     /// Con force=true ricarica comunque dal server.
     @objc func loadDirectory(force: Bool, completion: @escaping (NSError?) -> Void) {
+        // dms: the web service keeps the credentials, without a registered account nothing is asked to the server
+        guard LinphoneManager.instance().isBcsAccountRegistered() else {
+            allItems = []
+            loaded = false
+            DispatchQueue.main.async { completion(nil) }
+            return
+        }
         if loaded && !force {
             DispatchQueue.main.async { completion(nil) }
             return
@@ -135,6 +142,11 @@ struct BcsDirectoryResponse: Codable {
                     completion(error)
                     return
                 }
+                // dms: account disabled while the request was running
+                guard LinphoneManager.instance().isBcsAccountRegistered() else {
+                    completion(nil)
+                    return
+                }
                 // Ordiniamo lato client sul nome visualizzato (caption), così la lista è
                 // sempre alfabetica e deterministica indipendentemente dall'ordine del server.
                 self?.allItems = (response?.Items ?? []).sorted {
@@ -144,6 +156,12 @@ struct BcsDirectoryResponse: Codable {
                 completion(nil)
             }
         }
+    }
+
+    // dms: cache emptied on Cleared of the registered account and on Ok of another account
+    @objc func reset() {
+        allItems = []
+        loaded = false
     }
 
     /// Risultati filtrati per la query (vuota = tutti).

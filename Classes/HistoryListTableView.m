@@ -80,6 +80,11 @@
 										   selector:@selector(loadData)
 											   name:@"BcsCallReportDidUpdate"
 											 object:nil];
+	// dms: while open, the call report follows the account registration (emptied when disabled, reloaded when enabled)
+	[NSNotificationCenter.defaultCenter addObserver:self
+										   selector:@selector(loadData)
+											   name:kBcsRegisteredAccountChanged
+											 object:nil];
 	// All'ingresso forziamo sempre un refresh dal server (multi-dispositivo).
 	[self refreshFromServer];
 	NSDictionary* userInfo;
@@ -121,6 +126,7 @@
 	[NSNotificationCenter.defaultCenter removeObserver:self name:kLinphoneCoreUpdate object:nil];
 	[NSNotificationCenter.defaultCenter removeObserver:self name:kLinphoneCallUpdate object:nil];
 	[NSNotificationCenter.defaultCenter removeObserver:self name:@"BcsCallReportDidUpdate" object:nil];
+	[NSNotificationCenter.defaultCenter removeObserver:self name:kBcsRegisteredAccountChanged object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:@"LinphoneFriendPresenceUpdate" object:nil];
     [AvatarBridge removeAllObserver];
 }

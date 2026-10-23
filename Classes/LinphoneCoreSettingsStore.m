@@ -1201,11 +1201,11 @@
 
 - (void)removeAccount {
 	
-	MSList *accountList = [LinphoneManager.instance createAccountsNotHiddenList];
-	LinphoneAccount *account = bctbx_list_nth_data(accountList,
+	// dms: same list as transformAccountToKeys (index in the core account list)
+	LinphoneAccount *account = bctbx_list_nth_data(linphone_core_get_account_list(LC),
 													  [self integerForKey:@"current_proxy_config_preference"]);
-	
-	
+	if (!account) return;
+
 	const MSList *lists = linphone_core_get_friends_lists(LC);
 	while (lists) {
 		linphone_friend_list_enable_subscriptions(lists->data, FALSE);
@@ -1226,12 +1226,12 @@
 
 	if (isDefault) {
 		// if we removed the default proxy config, set another one instead
-		if (accountList != NULL) {
-			linphone_core_set_default_account(LC, (LinphoneAccount *)(accountList->data));
-		}
+		// dms: list read after the removal, it could be the removed account before
+		MSList *accountList = [LinphoneManager.instance createAccountsNotHiddenList];
+		linphone_core_set_default_account(LC, accountList ? (LinphoneAccount *)(accountList->data) : NULL);
+		bctbx_free(accountList);
 	}
 	[self transformLinphoneCoreToKeys];
-	bctbx_free(accountList);
 }
 
 - (void)removeLdap {

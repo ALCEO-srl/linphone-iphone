@@ -45,6 +45,7 @@
 
 + (IASKSpecifier *)filterSpecifier:(IASKSpecifier *)specifier;
 + (BOOL)isReadOnlyKey:(NSString *)key;
+- (BOOL)canDeleteCurrentAccount;
 
 @end
 
@@ -138,6 +139,10 @@
 		cell.selectionStyle = UITableViewCellSelectionStyleNone;
 		cell.textLabel.minimumScaleFactor = kIASKMinimumFontSize / [UIFont systemFontSize];
 		cell.detailTextLabel.minimumScaleFactor = kIASKMinimumFontSize / [UIFont systemFontSize];
+	} else if ([identifier isEqualToString:kIASKButtonSpecifier]) {
+		// dms: subtitle style, used by "Delete" when disabled ("Disable the account first")
+		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:identifier];
+		cell.detailTextLabel.textColor = [UIColor grayColor];
 	} else {
 		cell = [super newCellForIdentifier:identifier];
 	}
@@ -270,6 +275,17 @@
 		UITextField *field = ((IASKPSTextFieldSpecifierViewCell *)cell).textField;
 		field.enabled = !readOnly;
 		field.alpha = alpha;
+	}
+
+	// dms: "Delete" enabled only with the account disabled and unregistered: greyed with a subtitle otherwise
+	if ([specifier.type isEqualToString:kIASKButtonSpecifier]) {
+		cell.detailTextLabel.text = nil;
+		if ([specifier.key isEqualToString:@"account_mandatory_remove_button"] &&
+			[self.delegate isKindOfClass:[SettingsView class]] &&
+			![(SettingsView *)self.delegate canDeleteCurrentAccount]) {
+			cell.textLabel.alpha = 0.4;
+			cell.detailTextLabel.text = NSLocalizedString(@"Disable the account first", nil);
+		}
 	}
 	return cell;
 }
@@ -419,6 +435,7 @@ static UICompositeViewDescription *compositeDescription = nil;
 	[_settingsController dismiss:self];
 	// Set observer
 	[NSNotificationCenter.defaultCenter removeObserver:self name:kIASKAppSettingChanged object:nil];
+	[NSNotificationCenter.defaultCenter removeObserver:self name:kLinphoneRegistrationUpdate object:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -433,6 +450,36 @@ static UICompositeViewDescription *compositeDescription = nil;
 										   selector:@selector(appSettingChanged:)
 											   name:kIASKAppSettingChanged
 											 object:nil];
+	// dms: "Delete" follows the registration state of the account
+	[NSNotificationCenter.defaultCenter addObserver:self
+										   selector:@selector(registrationUpdateEvent:)
+											   name:kLinphoneRegistrationUpdate
+											 object:nil];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+	if (_openDefaultAccount) {
+		_openDefaultAccount = NO;
+		[self showDefaultAccount];
+	}
+}
+
+// dms: opens the screen of the default account as if its row ("menu_account_N") had been tapped
+- (void)showDefaultAccount {
+	LinphoneAccount *defaultAccount = linphone_core_get_default_account(LC);
+	if (!defaultAccount) return;
+	MSList *accounts = [LinphoneManager.instance createAccountsNotHiddenList];
+	int index = bctbx_list_index(accounts, defaultAccount);
+	bctbx_free(accounts);
+	if (index < 0) return;
+
+	[_navigationController popToRootViewControllerAnimated:NO];
+	NSString *key = [NSString stringWithFormat:@"menu_account_%d", index + 1];
+	NSIndexPath *indexPath = [_settingsController.settingsReader indexPathForKey:key];
+	if (indexPath) {
+		[_settingsController tableView:_settingsController.tableView didSelectRowAtIndexPath:indexPath];
+	}
 }
 
 #pragma mark - Account Creator callbacks
@@ -546,6 +593,9 @@ void update_hash_cbs(LinphoneAccountCreator *creator, LinphoneAccountCreatorStat
 		}
 		[Log enableLogs:debugLevel];
 		[LinphoneManager.instance lpConfigSetInt:debugLevel forKey:@"debugenable_preference"];
+	} else if ([@"account_is_enabled_preference" compare:notif.object] == NSOrderedSame) {
+		// dms: applied immediately (not when leaving the screen), so that "Delete" follows the unregistration
+		[self applyAccountEnabled:[[notif.userInfo objectForKey:@"account_is_enabled_preference"] boolValue]];
 	} else if ([@"account_mandatory_advanced_preference" compare:notif.object] == NSOrderedSame) {
 		removeFromHiddenKeys = [[notif.userInfo objectForKey:@"account_mandatory_advanced_preference"] boolValue];
 		for (NSString *key in settingsStore->dict) {
@@ -589,6 +639,76 @@ void update_hash_cbs(LinphoneAccountCreator *creator, LinphoneAccountCreatorStat
 	}
 
 	[_settingsController setHiddenKeys:hiddenKeys animated:TRUE];
+}
+
+#pragma mark - Account enable / delete (dms)
+
+// dms: account shown by the account screen (index in the core account list, see transformAccountToKeys)
+- (LinphoneAccount *)currentEditedAccount {
+	NSInteger idx = [settingsStore integerForKey:@"current_proxy_config_preference"];
+	if (idx < 0) return NULL;
+	return bctbx_list_nth_data(linphone_core_get_account_list(LC), (int)idx);
+}
+
+// dms: deletion only with the account disabled and the unregistration finished (Failed allowed, otherwise an account
+// with credentials no longer valid could not be deleted)
+- (BOOL)canDeleteCurrentAccount {
+	LinphoneAccount *account = [self currentEditedAccount];
+	if (!account) return NO;
+	LinphoneRegistrationState state = linphone_account_get_state(account);
+	return !linphone_account_params_register_enabled(linphone_account_get_params(account)) &&
+		   state != LinphoneRegistrationOk && state != LinphoneRegistrationProgress;
+}
+
+- (void)applyAccountEnabled:(BOOL)enabled {
+	LinphoneAccount *account = [self currentEditedAccount];
+	if (!account) return;
+	// dms: the switch (DCRoundSwitch) also sends "value changed" when its state is set from code (cell reuse):
+	// act only when the value really differs from the account
+	if (linphone_account_params_register_enabled(linphone_account_get_params(account)) == enabled) {
+		[self reloadAccountRows];
+		return;
+	}
+	if (enabled) {
+		[LinphoneManager.instance setAccount:account registerEnabled:YES];
+		[self reloadAccountRows];
+		return;
+	}
+	[LinphoneManager.instance confirmDisableAccountWithCompletion:^(BOOL confirmed) {
+	  LinphoneAccount *current = [self currentEditedAccount];
+	  if (confirmed && current) {
+		  [LinphoneManager.instance setAccount:current registerEnabled:NO];
+	  }
+	  [self reloadAccountRows];
+	}];
+}
+
+// dms: aligns the "Account enabled" switch with the account and refreshes the "Delete" row, if the account screen is
+// shown. The switch row is not reloaded: setting its state from code would send a new "value changed" event.
+- (void)reloadAccountRows {
+	UIViewController *top = _navigationController.topViewController;
+	if (![top isKindOfClass:[IASKAppSettingsViewController class]]) return;
+	IASKAppSettingsViewController *controller = (IASKAppSettingsViewController *)top;
+	if (![controller.file isEqualToString:@"Account"]) return;
+	LinphoneAccount *account = [self currentEditedAccount];
+	if (!account) return;
+
+	BOOL enabled = linphone_account_params_register_enabled(linphone_account_get_params(account));
+	[settingsStore setBool:enabled forKey:@"account_is_enabled_preference"];
+	NSIndexPath *switchPath = [controller.settingsReader indexPathForKey:@"account_is_enabled_preference"];
+	UITableViewCell *switchCell = switchPath ? [controller.tableView cellForRowAtIndexPath:switchPath] : nil;
+	if ([switchCell.accessoryView isKindOfClass:[DCRoundSwitch class]]) {
+		[(DCRoundSwitch *)switchCell.accessoryView setOn:enabled animated:YES ignoreControlEvents:YES];
+	}
+
+	NSIndexPath *removePath = [controller.settingsReader indexPathForKey:@"account_mandatory_remove_button"];
+	if (removePath) {
+		[controller.tableView reloadRowsAtIndexPaths:@[ removePath ] withRowAnimation:UITableViewRowAnimationNone];
+	}
+}
+
+- (void)registrationUpdateEvent:(NSNotification *)notif {
+	[self reloadAccountRows];
 }
 
 #pragma mark -
@@ -1023,23 +1143,14 @@ void update_hash_cbs(LinphoneAccountCreator *creator, LinphoneAccountCreatorStat
 		[[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
 		return;
 	} else if ([key isEqual:@"account_mandatory_remove_button"]) {
-		NSString *popUpText;
-		NSString *appDomain  = [LinphoneManager.instance lpConfigStringForKey:@"domain_name"
-					inSection:@"app"
-					withDefault:@"sip.linphone.org"];
-		
-		MSList *accountList = [LinphoneManager.instance createAccountsNotHiddenList];
-		LinphoneAccount *account = bctbx_list_nth_data(accountList,
-														  [settingsStore integerForKey:@"current_proxy_config_preference"]);
-		
-		bool isLinphoneAccount = strcmp(appDomain.UTF8String, linphone_account_params_get_domain(linphone_account_get_params(account))) == 0;
-		if (isLinphoneAccount) {
-			popUpText = NSLocalizedString(@"Your account will only be deleted locally.\nTo delete it permanently, go to our account management platform:", nil);
-		} else {
-			popUpText = NSLocalizedString(@"Your account will only be deleted locally.\nTo delete it permanently, go on your SIP provider website.", nil);
+		// dms: deletion allowed only with the account disabled and unregistered, otherwise the registration with the
+		// push parameters stays on the server until it expires (about six months)
+		if (![self canDeleteCurrentAccount]) {
+			LOGW(@"[Account Settings] Delete ignored, the account must be disabled and unregistered first");
+			return;
 		}
-		bctbx_free(accountList);
-		
+		NSString *popUpText = NSLocalizedString(@"Deleting the account removes its credentials from this phone. To use it again you will have to set it up with the assistant. Continue?", nil);
+
 		UIConfirmationDialog *dialog = [UIConfirmationDialog ShowWithMessage:popUpText
 								cancelMessage:nil
 							   confirmMessage:nil
@@ -1048,8 +1159,10 @@ void update_hash_cbs(LinphoneAccountCreator *creator, LinphoneAccountCreatorStat
 			[settingsStore removeAccount];
 			[self recomputeAccountLabelsAndSync];
 			[_settingsController.navigationController popViewControllerAnimated:NO];
+			// dms: after the deletion back to the dialer, as on Android
+			[PhoneMainView.instance changeCurrentView:DialerView.compositeViewDescription];
 		}];
-		dialog.subscribeLabel.hidden = !isLinphoneAccount; // Only display link to https://subscribe.linphone.org for linphone accounts
+		dialog.subscribeLabel.hidden = YES; // dms: no link to subscribe.linphone.org for BCS accounts
 
 	} else if ([key isEqual:@"account_mandatory_change_password"]) {
 		UIAlertController *alertView = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Change your password", nil)

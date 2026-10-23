@@ -161,6 +161,18 @@ static UICompositeViewDescription *compositeDescription = nil;
 																				 selector:@selector(displayModeChanged)
 																						 name:kDisplayModeChanged
 																					 object:nil];
+	// dms: BCS buddies emptied (account disabled) or loaded (account enabled): redo the search with the current
+	// filter and the magic search cache reset (removed by viewWillDisappear with the other observers)
+	[NSNotificationCenter.defaultCenter addObserver:self
+										   selector:@selector(onBcsContactsChanged:)
+											   name:kLinphoneAddressBookUpdate
+											 object:nil];
+}
+
+- (void)onBcsContactsChanged:(NSNotification *)notif {
+	[LinphoneManager.instance setContactsUpdated:TRUE];
+	[tableController setReloadMagicSearch:TRUE];
+	[tableController loadDataWithFilter:_searchBar.text ?: @""];
 }
 
 - (void)onMagicSearchStarted:(NSNotification *)k {

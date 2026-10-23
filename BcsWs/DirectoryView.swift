@@ -49,6 +49,18 @@ class DirectoryListView: UIViewController, UICompositeViewDelegate, UITableViewD
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        // dms: while open, the directory follows the account registration (emptied when disabled, reloaded when enabled)
+        NotificationCenter.default.addObserver(self, selector: #selector(registeredAccountChanged),
+                                               name: NSNotification.Name(kBcsRegisteredAccountChanged), object: nil)
+        reload(force: false)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(kBcsRegisteredAccountChanged), object: nil)
+    }
+
+    @objc private func registeredAccountChanged() {
         reload(force: false)
     }
 

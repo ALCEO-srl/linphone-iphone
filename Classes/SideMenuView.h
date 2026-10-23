@@ -31,6 +31,8 @@
 @property(weak, nonatomic) IBOutlet UIImageView *presenceImage;
 @property(strong, nonatomic) IBOutlet SideMenuTableView *sideMenuTableViewController;
 @property(weak, nonatomic) IBOutlet UIView *grayBackground;
+// dms: enable / disable switch of the default account, in the header (created in code, both xibs)
+@property(strong, nonatomic) UISwitch *accountSwitch;
 - (IBAction)onLateralSwipe:(id)sender;
 - (IBAction)onHeaderClick:(id)sender;
 - (IBAction)onAvatarClick:(id)sender;
