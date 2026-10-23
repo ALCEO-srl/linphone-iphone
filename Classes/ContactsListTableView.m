@@ -221,6 +221,11 @@ static int ms_strcmpfuz(const char *fuzzy_word, const char *sentence) {
 				}
 			}
 		}
+		// dms: the "" section is always created but normally stays empty: its empty header (plus the padding iOS 15+
+		// adds above every section header) left a large blank area under the search bar
+		if ([[addressBookMap objectForKey:@""] count] == 0) {
+			[addressBookMap removeObjectForKey:@""];
+		}
 		[super loadData];
 	}
 	// since we refresh the tableview, we must perform this on main
