@@ -140,7 +140,8 @@
 	[self.view setNeedsLayout]; // dms: header shown / hidden with the default account
 }
 
-// dms: enabling is immediate; disabling keeps the switch on until the user confirms
+// dms: enabling is immediate; when disabling the switch stays off while the confirmation is shown,
+// "Cancel" turns it back on, "Disable" leaves it off (as in the account settings)
 - (void)onAccountSwitch:(UISwitch *)sender {
 	LinphoneAccount *account = linphone_core_get_default_account(LC);
 	if (!account) return;
@@ -148,9 +149,11 @@
 		[LinphoneManager.instance setAccount:account registerEnabled:YES];
 		return;
 	}
-	[sender setOn:YES animated:NO];
 	[LinphoneManager.instance confirmDisableAccountWithCompletion:^(BOOL confirmed) {
-	  if (!confirmed) return;
+	  if (!confirmed) {
+		  [sender setOn:YES animated:YES];
+		  return;
+	  }
 	  LinphoneAccount *current = linphone_core_get_default_account(LC);
 	  if (!current) return;
 	  [LinphoneManager.instance setAccount:current registerEnabled:NO];
