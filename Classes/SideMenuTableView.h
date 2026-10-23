@@ -34,4 +34,7 @@ typedef void (^SideMenuEntryBlock)(void);
 
 @property(nonatomic, retain) NSMutableArray *sideMenuEntries;
 
+// dms: rebuilds the entries (the assistant depends on the accounts), called on open and on registration changes
+- (void)updateEntries;
+
 @end

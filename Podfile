@@ -1,5 +1,5 @@
 # Uncomment the next line to define a global platform for your project
-platform :ios, '13.0'
+platform :ios, '15.0'
 source "https://gitlab.linphone.org/BC/public/podspec.git"
 source "https://github.com/CocoaPods/Specs.git"
 
@@ -119,7 +119,7 @@ post_install do |installer|
 	
 	installer.pods_project.targets.each do |target| 
 		target.build_configurations.each do |config| 
-			config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+			config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
 		end
 	end
   

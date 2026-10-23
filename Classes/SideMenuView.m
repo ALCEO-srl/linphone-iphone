@@ -56,6 +56,8 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
 	[super viewWillDisappear:animated];
+	// dms: the observer is added on every viewWillAppear, remove it so that it does not pile up
+	[NSNotificationCenter.defaultCenter removeObserver:self name:kLinphoneRegistrationUpdate object:nil];
 	_grayBackground.hidden = YES;
 	// should be better than that with alpha animation..
 }
@@ -111,6 +113,8 @@
 
 - (void)registrationUpdateEvent:(NSNotification *)notif {
 	[self updateHeader];
+	// dms: an account added or removed changes the entries (assistant only without account)
+	[_sideMenuTableViewController updateEntries];
 	[_sideMenuTableViewController.tableView reloadData];
 }
 

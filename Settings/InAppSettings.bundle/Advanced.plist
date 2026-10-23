@@ -212,6 +212,20 @@
 			<key>IASKTextAlignment</key>
 			<string>IASKUITextAlignmentRight</string>
 		</dict>
+		<dict>
+			<key>Title</key>
+			<string>System</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>Key</key>
+			<string>system_settings_button</string>
+			<key>Title</key>
+			<string>System settings</string>
+			<key>Type</key>
+			<string>IASKButtonSpecifier</string>
+		</dict>
 	</array>
 </dict>
 </plist>

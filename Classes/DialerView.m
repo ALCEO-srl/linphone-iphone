@@ -282,10 +282,16 @@ static UICompositeViewDescription *compositeDescription = nil;
 	}
 }
 
+// dms: dialer code opening the debug popup, configurable from linphonerc ([app] debug_popup_magic)
++ (NSString *)debugPopupCode {
+	return [LinphoneManager.instance lpConfigStringForKey:@"debug_popup_magic" withDefault:@"#230872#"];
+}
+
 - (BOOL)displayDebugPopup:(NSString *)address {
 	LinphoneManager *mgr = LinphoneManager.instance;
-	NSString *debugAddress = [mgr lpConfigStringForKey:@"debug_popup_magic" withDefault:@""];
-	if ((![debugAddress isEqualToString:@""] && [address isEqualToString:debugAddress]) || [_addressField.text  isEqual: @"#1234#"]) {
+	// dms: only the configured code ([app] debug_popup_magic, #230872# by default), the standard #1234# no longer works
+	NSString *debugAddress = [DialerView debugPopupCode];
+	if (![debugAddress isEqualToString:@""] && [address isEqualToString:debugAddress]) {
 		UIAlertController *errView = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Debug", nil)
 																		 message:NSLocalizedString(@"Choose an action", nil)
 																  preferredStyle:UIAlertControllerStyleAlert];
@@ -328,6 +334,25 @@ static UICompositeViewDescription *compositeDescription = nil;
 			}];
 
 		[errView addAction:configAction];
+
+		// dms: technician mode (hidden / read-only settings), before the last item (cancel)
+		BOOL technicianMode = mgr.technicianMode;
+		NSString *technicianTitle = technicianMode ? NSLocalizedString(@"Disable technician mode", nil)
+												   : NSLocalizedString(@"Enable technician mode", nil);
+		UIAlertAction *technicianAction = [UIAlertAction actionWithTitle:technicianTitle
+			style:UIAlertActionStyleDefault
+			handler:^(UIAlertAction *action) {
+				mgr.technicianMode = !technicianMode;
+				LOGW(@"[Dialer] Technician mode is now %d", mgr.technicianMode);
+				NSString *message = mgr.technicianMode ? NSLocalizedString(@"Technician mode enabled until the app restarts", nil)
+													   : NSLocalizedString(@"Technician mode disabled", nil);
+				UIAlertController *confirmView = [UIAlertController alertControllerWithTitle:nil
+																					 message:message
+																			  preferredStyle:UIAlertControllerStyleAlert];
+				[confirmView addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+				[self presentViewController:confirmView animated:YES completion:nil];
+			}];
+		[errView addAction:technicianAction];
 
 		UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil)
 	  		style:UIAlertActionStyleDefault
@@ -406,7 +431,8 @@ static UICompositeViewDescription *compositeDescription = nil;
 }
 
 - (IBAction)onAddressChange:(id)sender {
-	if ([_addressField.text  isEqual: @"#1234#"]) {
+	// dms: debug popup code read from [app] debug_popup_magic instead of the fixed #1234#
+	if ([_addressField.text isEqualToString:[DialerView debugPopupCode]]) {
 		[self displayDebugPopup:_addressField.text];
 		_addressField.text = @"";
 	}

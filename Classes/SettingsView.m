@@ -44,6 +44,7 @@
 @interface SettingsView (private)
 
 + (IASKSpecifier *)filterSpecifier:(IASKSpecifier *)specifier;
++ (BOOL)isReadOnlyKey:(NSString *)key;
 
 @end
 
@@ -251,6 +252,24 @@
 		cell.detailTextLabel.textColor = [UIColor grayColor];
 	} else {
 		cell.detailTextLabel.textColor = LINPHONE_MAIN_COLOR;
+	}
+
+	// dms: read-only settings for normal users: visible with their value, greyed and not editable.
+	// Always (re)applied because the cells are reused.
+	IASKSpecifier *specifier = [self.settingsReader specifierForIndexPath:indexPath];
+	BOOL readOnly = [SettingsView isReadOnlyKey:specifier.key];
+	CGFloat alpha = readOnly ? 0.4 : 1.0;
+	cell.userInteractionEnabled = !readOnly;
+	cell.textLabel.alpha = alpha;
+	cell.detailTextLabel.alpha = alpha;
+	cell.accessoryView.alpha = alpha;
+	if ([cell.accessoryView isKindOfClass:[UIControl class]]) {
+		((UIControl *)cell.accessoryView).enabled = !readOnly;
+	}
+	if ([cell isKindOfClass:[IASKPSTextFieldSpecifierViewCell class]]) {
+		UITextField *field = ((IASKPSTextFieldSpecifierViewCell *)cell).textField;
+		field.enabled = !readOnly;
+		field.alpha = alpha;
 	}
 	return cell;
 }
@@ -699,14 +718,13 @@ void update_hash_cbs(LinphoneAccountCreator *creator, LinphoneAccountCreatorStat
 	[hiddenKeys addObject:@"enable_broadcast_conference_feature"];
 	[hiddenKeys addObject:@"meeting_menu"];
 	
-#ifndef DEBUG
+	// dms: development debug actions hidden in debug builds too (they were shown only by #ifdef DEBUG)
 	[hiddenKeys addObject:@"debug_actions_group"];
 	[hiddenKeys addObject:@"release_button"];
 	[hiddenKeys addObject:@"clear_cache_button"];
 	[hiddenKeys addObject:@"battery_alert_button"];
 	[hiddenKeys addObject:@"enable_auto_answer_preference"];
 	[hiddenKeys addObject:@"flush_images_button"];
-#endif
 
 	int debugLevel = [LinphoneManager.instance lpConfigIntForKey:@"debugenable_preference"];
 	BOOL debugEnabled = (debugLevel >= ORTP_DEBUG && debugLevel < ORTP_ERROR);
@@ -795,6 +813,9 @@ void update_hash_cbs(LinphoneAccountCreator *creator, LinphoneAccountCreatorStat
 		[hiddenKeys addObject:@"tunnel_menu"];
 	}
 
+	// dms: the "More options" switch is no longer used: the advanced account parameters are always shown
+	// (read-only for normal users, editable in technician mode), see the BCS block at the end
+	/*
 	if (![lm lpConfigBoolForKey:@"account_mandatory_advanced_preference"]) {
 		for (NSString *key in settingsStore->dict) {
 			if (([key hasPrefix:@"account_"]) && (![key hasPrefix:@"account_mandatory_"])) {
@@ -802,6 +823,7 @@ void update_hash_cbs(LinphoneAccountCreator *creator, LinphoneAccountCreatorStat
 			}
 		}
 	}
+	*/
 
 	if (![[LinphoneManager.instance iapManager] enabled]) {
 		[hiddenKeys addObject:@"in_app_products_button"];
@@ -832,7 +854,82 @@ void update_hash_cbs(LinphoneAccountCreator *creator, LinphoneAccountCreatorStat
 		[hiddenKeys addObject:@"local_ssids"];
 	}
 
+	[hiddenKeys unionSet:[SettingsView bcsHiddenKeys]];
 	return hiddenKeys;
+}
+
+// dms: settings reduced to the minimum for normal users, everything back in technician mode
+// (LinphoneManager.technicianMode, in memory only). Only the UI changes, the configuration values are untouched.
++ (NSSet *)bcsHiddenKeys {
+	LinphoneManager *lm = LinphoneManager.instance;
+	BOOL tech = lm.technicianMode;
+	NSMutableSet *keys = [NSMutableSet set];
+
+	// dms: always hidden, also in technician mode
+	// - chat: only file / image items (no attachments in BcsPhone), so the whole section
+	[keys addObjectsFromArray:@[ @"message_menu", @"auto_download_mode", @"auto_write_to_gallery_mode",
+		@"auto_download_incoming_files_max_size", @"file_transfer_server_url_preference" ]];
+	// - VFS not used by BcsPhone (chat history on bcsws, no files saved)
+	[keys addObjectsFromArray:@[ @"vfs_enabled_mode", @"vfs_enabled" ]];
+	// - primary account (local identity without an account): BCS always uses an account
+	[keys addObjectsFromArray:@[ @"primary_displayname_preference", @"primary_username_preference" ]];
+	// - LDAP contacts, and the "More options" switch of the account (advanced parameters always shown)
+	[keys addObjectsFromArray:@[ @"contacts_menu", @"account_mandatory_advanced_preference" ]];
+
+	// dms: assistant only without account (hidden accounts excluded)
+	MSList *accounts = [lm createAccountsNotHiddenList];
+	if (accounts) {
+		[keys addObject:@"assistant_button"];
+	}
+	bctbx_free(accounts);
+
+	if (tech) {
+		return keys;
+	}
+
+	// dms: root, sections hidden from linphonerc ([app] settings_audio / settings_video / settings_network, as on Android)
+	if (![lm lpConfigBoolForKey:@"settings_audio" withDefault:YES]) {
+		[keys addObject:@"audio_menu"];
+	}
+	if (![lm lpConfigBoolForKey:@"settings_video" withDefault:YES]) {
+		[keys addObjectsFromArray:@[ @"video_menu", @"enable_video_preference" ]];
+	}
+	if (![lm lpConfigBoolForKey:@"settings_network" withDefault:YES]) {
+		[keys addObject:@"network_menu"];
+	}
+
+	// dms: account, the display name is decided by the server; changing the password on the server is not supported by BCS
+	[keys addObjectsFromArray:@[ @"account_display_name_preference", @"account_mandatory_change_password" ]];
+
+	// dms: call, only ringtone and media encryption stay visible (the system settings link is in advanced)
+	[keys addObjectsFromArray:@[ @"rfc_dtmf_preference", @"sipinfo_dtmf_preference", @"voice_mail_uri_preference",
+		@"repeat_call_notification_preference", @"pref_accept_early_media_preference" ]];
+
+	// dms: advanced, only the chat notification option and the system settings link stay visible
+	[keys addObjectsFromArray:@[ @"use_rls_presence", @"debugenable_preference", @"send_logs_button",
+		@"reset_logs_button", @"send_db_button", @"autoanswer_notif_preference", @"animations_preference",
+		@"start_at_boot_preference", @"screenshot_preference" ]];
+
+	return keys;
+}
+
+// dms: settings visible but not editable for normal users (editable in technician mode)
++ (BOOL)isReadOnlyKey:(NSString *)key {
+	if (!key || LinphoneManager.instance.technicianMode) {
+		return NO;
+	}
+	static NSSet *readOnlyKeys = nil;
+	static dispatch_once_t once;
+	dispatch_once(&once, ^{
+	  readOnlyKeys = [NSSet setWithArray:@[
+		  @"account_mandatory_domain_preference", @"account_is_default_preference",
+		  @"account_pushnotification_preference", @"account_proxy_preference", @"account_transport_preference",
+		  @"account_stun_preference", @"account_ice_preference", @"account_outbound_proxy_preference",
+		  @"account_avpf_preference", @"account_expire_preference", @"account_prefix_preference",
+		  @"apply_international_prefix_for_calls_and_chats", @"account_substitute_+_by_00_preference"
+	  ]];
+	});
+	return [readOnlyKeys containsObject:key];
 }
 
 - (void)recomputeAccountLabelsAndSync {
@@ -919,6 +1016,11 @@ void update_hash_cbs(LinphoneAccountCreator *creator, LinphoneAccountCreatorStat
 #endif
 	if ([key isEqual:@"assistant_button"]) {
 		[PhoneMainView.instance changeCurrentView:AssistantView.compositeViewDescription];
+		return;
+	} else if ([key isEqual:@"system_settings_button"]) {
+		// dms: page of the app in the iOS Settings (notifications, permissions)
+		NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+		[[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
 		return;
 	} else if ([key isEqual:@"account_mandatory_remove_button"]) {
 		NSString *popUpText;

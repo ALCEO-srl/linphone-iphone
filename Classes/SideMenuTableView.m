@@ -55,21 +55,28 @@
 - (void)viewWillAppear:(BOOL)animated {
 	linphone_core_stop_dtmf_stream(LC);
 	[super viewWillAppear:animated];
+	[self updateEntries];
+}
 
+- (void)updateEntries {
 	_sideMenuEntries = [[NSMutableArray alloc] init];
 
-	[_sideMenuEntries
-		addObject:[[SideMenuEntry alloc] initWithTitle:NSLocalizedString(@"Assistant", nil)
-                                                 image:[UIImage imageNamed:@"menu_assistant.png"]
-											  tapBlock:^() {
-												[PhoneMainView.instance
-													changeCurrentView:AssistantView.compositeViewDescription];
-											  }]];
-	BOOL mustLink = ([LinphoneManager.instance lpConfigIntForKey:@"must_link_account_time"] > 0);
-	
 	MSList *accounts = [LinphoneManager.instance createAccountsNotHiddenList];
 	BOOL hasAccount = accounts != NULL;
 	bctbx_free(accounts);
+
+	// dms: assistant only without account (hidden accounts excluded), BcsPhone uses a single account
+	if (!hasAccount) {
+		[_sideMenuEntries
+			addObject:[[SideMenuEntry alloc] initWithTitle:NSLocalizedString(@"Assistant", nil)
+													 image:[UIImage imageNamed:@"menu_assistant.png"]
+												  tapBlock:^() {
+													[PhoneMainView.instance
+														changeCurrentView:AssistantView.compositeViewDescription];
+												  }]];
+	}
+	BOOL mustLink = ([LinphoneManager.instance lpConfigIntForKey:@"must_link_account_time"] > 0);
+
 	if (mustLink && hasAccount && ![LinphoneManager.instance lpConfigIntForKey:@"hide_link_phone_number"]) {
 		[_sideMenuEntries
 			addObject:[[SideMenuEntry alloc] initWithTitle:NSLocalizedString(@"Link my account", nil)
@@ -88,6 +95,8 @@
 												[PhoneMainView.instance
 													changeCurrentView:SettingsView.compositeViewDescription];
 											  }]];
+	// dms: recordings hidden, call recording is not used in BcsPhone (as on Android)
+	/*
     [_sideMenuEntries
      addObject:[[SideMenuEntry alloc] initWithTitle:NSLocalizedString(@"Recordings", nil)
                                               image:[UIImage imageNamed:@"menu_recordings.png"]
@@ -95,6 +104,7 @@
                                                [PhoneMainView.instance
                                                 changeCurrentView:RecordingsListView.compositeViewDescription];
                                            }]];
+	*/
 	InAppProductsManager *iapm = LinphoneManager.instance.iapManager;
 	if (iapm.enabled){
 		[_sideMenuEntries

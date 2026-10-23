@@ -118,6 +118,16 @@ hiddenKeys = _hiddenKeys;
 			[(NSMutableArray*)[dataSource objectAtIndex:sectionCount] addObject:newSpecifier];
 		}
 	}
+	// dms: drop the groups left without visible items (all their keys hidden), otherwise only their header is shown
+	NSIndexSet *emptySections = [dataSource indexesOfObjectsPassingTest:^BOOL(NSArray *section, NSUInteger idx, BOOL *stop) {
+		for (id item in section) {
+			if ([item isKindOfClass:[IASKSpecifier class]]) {
+				return NO;
+			}
+		}
+		return YES;
+	}];
+	[dataSource removeObjectsAtIndexes:emptySections];
 	[self setDataSource:dataSource];
 }
 

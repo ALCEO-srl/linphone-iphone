@@ -227,5 +227,8 @@ typedef struct _LinphoneManagerSounds {
 @property UIImage *avatar;
 @property NSString *customCoreDNS;
 @property NSString *lastAccountIdRegistered; //dms
+// dms: technician mode, enabled from the debug popup (dialer code): shows the hidden settings and makes the
+// read-only ones editable. Kept in memory only, it is disabled when the app restarts.
+@property (nonatomic, assign) BOOL technicianMode;
 
 @end
