@@ -242,7 +242,8 @@ static UICompositeViewDescription *compositeDescription = nil;
 - (void)reset {
 	[LinphoneManager.instance removeAllAccounts];
 	[self resetTextFields];
-	[self changeView:_welcomeView back:FALSE animation:FALSE];
+	// dms: generic SIP login, not the welcome screen (reset is called at startup without account, after viewWillAppear)
+	[self showGenericLoginAnimated:NO];
 	_waitView.hidden = TRUE;
 }
 

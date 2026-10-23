@@ -70,11 +70,8 @@
 	if (contactFriend) {
 		const LinphonePresenceModel *model = contactFriend ? linphone_friend_get_presence_model_for_uri_or_tel(contactFriend, _addressLabel.text.UTF8String) : NULL;
 		
-		self.linphoneImage.hidden = [LinphoneManager.instance lpConfigBoolForKey:@"hide_linphone_contacts" inSection:@"app"] ||
-			!((model && linphone_presence_model_get_basic_status(model) == LinphonePresenceBasicStatusOpen) ||
-			  (account && !linphone_account_is_phone_number(account,
-													  _addressLabel.text.UTF8String) &&
-			   [FastAddressBook isSipURIValid:_addressLabel.text]));
+		// dms: no "Linphone user" icon (daisy) next to the address
+		self.linphoneImage.hidden = YES;
 		self.inviteButton.hidden = !ENABLE_SMS_INVITE || [[contactDetailsView.contact sipAddresses] count] > 0 || !self.linphoneImage.hidden;
 		[self shouldHideEncryptedChatView:account && linphone_account_params_get_conference_factory_uri(linphone_account_get_params(account)) && model && linphone_presence_model_has_capability(model, LinphoneFriendCapabilityLimeX3dh)];
 		_chatButton.hidden = [LinphoneManager.instance lpConfigBoolForKey:@"force_lime_chat_rooms"] || [LinphoneManager.instance lpConfigBoolForKey:@"disable_chat_feature"];
@@ -115,7 +112,7 @@
 	Contact *contact = [FastAddressBook getContactWithAddress:(addr)];
 
 	if (contact) {
-		self.linphoneImage.hidden =[LinphoneManager.instance lpConfigBoolForKey:@"hide_linphone_contacts" inSection:@"app"] || ! ((contact.friend && linphone_presence_model_get_basic_status(linphone_friend_get_presence_model_for_uri_or_tel(contact.friend, _addressLabel.text.UTF8String)) == LinphonePresenceBasicStatusOpen) || (account && !linphone_account_is_phone_number(account, _addressLabel.text.UTF8String) && [FastAddressBook isSipURIValid:_addressLabel.text]));
+		self.linphoneImage.hidden = YES; // dms: no "Linphone user" icon (daisy)
 	}
 	
 	if (addr) {

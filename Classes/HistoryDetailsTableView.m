@@ -105,12 +105,12 @@
 	LinphoneCallLog *log = [[callLogs objectAtIndex:[indexPath row]] pointerValue];
 	int duration = linphone_call_log_get_duration(log);
 	time_t callTime = linphone_call_log_get_start_date(log);
-	cell.textLabel.textAlignment = NSTextAlignmentCenter;
-	[cell.textLabel
-		setText:[NSString stringWithFormat:@"%@ - %@",
-										   [LinphoneUtils timeToString:callTime withFormat:LinphoneDateHistoryDetails],
-										   [LinphoneUtils durationToString:duration]]];
 	BOOL outgoing = (linphone_call_log_get_dir(log) == LinphoneCallOutgoing);
+	cell.textLabel.textAlignment = NSTextAlignmentCenter;
+	// dms: "ven 23 ott, 16:11 · 1 min 5 s": duration with its units, the outcome instead of a zero duration
+	NSString *date = [LinphoneUtils timeToString:callTime withFormat:LinphoneDateHistoryDetails];
+	NSString *detail = (duration > 0) ? [LinphoneUtils durationToText:duration] : [self outcomeOfCallLog:log outgoing:outgoing];
+	cell.textLabel.text = detail ? [NSString stringWithFormat:@"%@ · %@", date, detail] : date;
 
 	if ([SwiftUtil isCallLogMissedWithCLog:log]) {
 		cell.imageView.image = [UIImage imageNamed:@"call_missed.png"];
@@ -122,6 +122,26 @@
 	cell.contentView.userInteractionEnabled =  false;
 
 	return cell;
+}
+
+// dms: outcome of a call without duration, nil for a successful one
+- (NSString *)outcomeOfCallLog:(LinphoneCallLog *)log outgoing:(BOOL)outgoing {
+	if ([SwiftUtil isCallLogMissedWithCLog:log])
+		return NSLocalizedString(@"Missed", nil);
+	switch (linphone_call_log_get_status(log)) {
+		case LinphoneCallDeclined:
+			return NSLocalizedString(@"Declined", nil);
+		case LinphoneCallAborted:
+		case LinphoneCallEarlyAborted:
+		case LinphoneCallMissed:
+			return outgoing ? NSLocalizedString(@"No answer", nil) : NSLocalizedString(@"Missed", nil);
+		case LinphoneCallAcceptedElsewhere:
+			return NSLocalizedString(@"Answered elsewhere", nil);
+		case LinphoneCallDeclinedElsewhere:
+			return NSLocalizedString(@"Declined elsewhere", nil);
+		default:
+			return nil;
+	}
 }
 
 @end

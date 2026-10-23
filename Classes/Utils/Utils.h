@@ -54,6 +54,7 @@ typedef enum {
 + (UIImage *)selfAvatar;
 
 + (NSString *)durationToString:(int)duration;
++ (NSString *)durationToText:(int)duration;
 // dms: presence of a BCS buddy as text (Available, Do not disturb, Away, ...), same states as the contact icons.
 // nil when the friend is not a buddy with presence (no subscription).
 + (NSString *)presenceTextForFriend:(LinphoneFriend *)friend;

@@ -176,34 +176,7 @@
         _shortcutItem = nil;
     }
 
-#if TARGET_IPHONE_SIMULATOR
-#else
-	[[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:(UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge)
-																		completionHandler:^(BOOL granted, NSError *_Nullable error) {
-		if (error)
-			LOGD(error.description);
-		if (!granted) {
-			dispatch_async(dispatch_get_main_queue(), ^{
-				UIAlertController *errView =
-				[UIAlertController alertControllerWithTitle:NSLocalizedString(@"Push notification not allowed", nil)
-													message:NSLocalizedString(@"Push notifications are required to receive calls and messages.", nil)
-											 preferredStyle:UIAlertControllerStyleAlert];
-				
-				UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
-																		style:UIAlertActionStyleDefault
-																	  handler:^(UIAlertAction *action){
-				}];
-				[errView addAction:defaultAction];
-				[PhoneMainView.instance.mainViewController presentViewController:errView animated:YES completion:nil];
-			});
-		} else  {
-			dispatch_async(dispatch_get_main_queue(), ^{
-				[self configureUINotification];
-			});
-		}
-		
-	}];
-#endif
+	[self requestPermissions];
 
 	
 	if ([UIDeviceBridge switchedDisplayMode]) {
@@ -218,6 +191,59 @@
 
 #pragma deploymate push "ignored-api-availability"
 
+
+// dms: permissions asked one at a time (notifications, microphone, camera), each one after the answer to the previous one.
+// Every system popup makes the app active again when it closes: no new requests while a sequence is running, and the
+// "push not allowed" alert only once per launch. Permissions already decided answer at once, without popup.
+static BOOL permissionsRequestRunning = NO;
+static BOOL pushNotAllowedShown = NO;
+
+- (void)requestPermissions {
+	if (permissionsRequestRunning) return;
+	permissionsRequestRunning = YES;
+#if TARGET_IPHONE_SIMULATOR
+	[self requestMediaPermissions];
+#else
+	[[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:(UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge)
+																		completionHandler:^(BOOL granted, NSError *_Nullable error) {
+		if (error)
+			LOGD(error.description);
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if (granted) {
+				[self configureUINotification];
+			} else if (!pushNotAllowedShown) {
+				pushNotAllowedShown = YES;
+				UIAlertController *errView =
+				[UIAlertController alertControllerWithTitle:NSLocalizedString(@"Push notification not allowed", nil)
+													message:NSLocalizedString(@"Push notifications are required to receive calls and messages.", nil)
+											 preferredStyle:UIAlertControllerStyleAlert];
+
+				UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+																		style:UIAlertActionStyleDefault
+																	  handler:^(UIAlertAction *action){
+				}];
+				[errView addAction:defaultAction];
+				[PhoneMainView.instance.mainViewController presentViewController:errView animated:YES completion:nil];
+			}
+			[self requestMediaPermissions];
+		});
+	}];
+#endif
+}
+
+- (void)requestMediaPermissions {
+	[AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio
+							 completionHandler:^(BOOL granted) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
+									 completionHandler:^(BOOL granted) {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					permissionsRequestRunning = NO;
+				});
+			}];
+		});
+	}];
+}
 
 - (void)configureUINotification {
 	if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_9_x_Max)

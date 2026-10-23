@@ -1921,13 +1921,7 @@ static int comp_call_state_paused(const LinphoneCall *call, const void *param) {
 		incallBgTask = 0;
 	}
 
-	/*IOS specific*/
-	[AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
-	 completionHandler:^(BOOL granted){
-		}];
-	[AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio
-	 completionHandler:^(BOOL granted){
-		}];
+	// dms: microphone and camera are asked by LinphoneAppDelegate requestPermissions, one popup at a time after the notifications
 
 	/*start the video preview in case we are in the main view*/
 	if (linphone_core_video_display_enabled(theLinphoneCore) && [self lpConfigBoolForKey:@"preview_preference"]) {

@@ -463,6 +463,10 @@
 }
 
 - (void)reloadFriend {
+	// dms: only contacts of the system address book. A BCS buddy has no CNContact, so its key would be "ab(null)" for
+	// every buddy: the first one created a new friend with that key and all the others took its name. The buddy's friend
+	// belongs to the BCS list and the contacts are rebuilt when the core starts again.
+	if (!_person) return;
 	const char *key = [NSString stringWithFormat:@"ab%@", _person.identifier].UTF8String;
 	// try to find friend associated with that person
 	_friend = linphone_friend_list_find_friend_by_ref_key(linphone_core_get_default_friend_list(LC), key);

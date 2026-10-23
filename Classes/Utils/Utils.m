@@ -80,6 +80,18 @@
 	return [result stringByAppendingString:[NSString stringWithFormat:@"%02i:%02i", (duration / 60), (duration % 60)]];
 }
 
+// dms: duration with its units, only the non-zero ones ("42 s", "1 min 5 s", "1 h 2 min 10 s"), not mistaken for a time
++ (NSString *)durationToText:(int)duration {
+	NSMutableArray *parts = [NSMutableArray array];
+	if (duration / 3600 > 0)
+		[parts addObject:[NSString stringWithFormat:@"%i h", duration / 3600]];
+	if (duration % 3600 / 60 > 0)
+		[parts addObject:[NSString stringWithFormat:@"%i min", duration % 3600 / 60]];
+	if (duration % 60 > 0 || parts.count == 0)
+		[parts addObject:[NSString stringWithFormat:@"%i s", duration % 60]];
+	return [parts componentsJoinedByString:@" "];
+}
+
 + (NSString *) intervalToString:(NSTimeInterval)interval {
 	NSDateComponentsFormatter *formatter = [[NSDateComponentsFormatter alloc] init];
 	formatter.allowedUnits = NSCalendarUnitSecond;

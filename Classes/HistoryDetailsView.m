@@ -200,8 +200,8 @@ static UICompositeViewDescription *compositeDescription = nil;
 	[_avatarImage setImage:[FastAddressBook imageForAddress:addr]];
     Contact *contact = [FastAddressBook getContactWithAddress:addr];
     const LinphonePresenceModel *model = contact.friend ? linphone_friend_get_presence_model(contact.friend) : NULL;
-    _linphoneImage.hidden = [LinphoneManager.instance lpConfigBoolForKey:@"hide_linphone_contacts" inSection:@"app"] ||
-    ! ((model && linphone_presence_model_get_basic_status(model) == LinphonePresenceBasicStatusOpen) || [FastAddressBook contactHasValidSipDomain:contact]);
+    // dms: no "Linphone user" icon (daisy) next to the name, as in the new chat screen
+    _linphoneImage.hidden = YES;
 	LinphoneAccount *defaultAccount = linphone_core_get_default_account(LC);
 	[self shouldHideEncryptedChatView:defaultAccount && linphone_account_params_get_conference_factory_uri(linphone_account_get_params(defaultAccount)) && model && linphone_presence_model_has_capability(model, LinphoneFriendCapabilityLimeX3dh)];
 	char *addrURI = linphone_address_as_string_uri_only(addr);
